@@ -1,0 +1,46 @@
+---
+title: "Using KLI in R"
+author: "Sean Carver"
+output: html_document
+---
+
+TO use KLI-R you must first source the code:
+
+```{r sourcing}
+source('kli.R')
+```
+
+The next step is to code (and source) the models you need.  However, you can skip this step if it has already been done for you.  For the moment, KLI-R comes only with code to study models of the t-distribution with different degress of freedom (df) and the Normal distribution with df = Inf.  We will work with those models first, then I'll show you how to add your own models.
+
+To use KLI-R you must have data.  You can gather data in an experiment or you can simulate data.  To simulate data, you must decide what model to use for the simulations.  If you want 10 samples from the standard normal distribution type:
+
+```{r normaldata}
+sim.t(n=10, df=Inf)
+```
+
+The first parameter n=10 is a required parameter that specifies the number of samples returned in the data, in this case 10.  The result is a vector of 10 numbers, one for each sample.
+
+The second parameter df=Inf is the number of degrees of freedom.
+The standard normal distribution is the limit of the t-distribution as its parameter "df," degrees of freedom, grows to infinity.  Currently there is no way to collect data from a non-standard normal distribution using the code from KLI-R, however there is no reason why you couldn't use the R function rnorm() to produce such data.  When we discuss writing our own models, I'll show you how to write a wrapper for rnorm() that will make its use more convenient.  The function sim.t() is such a wrapper for R's t-distribution simulator rt().
+
+On the other hand, using KLI-R code, if you want to simulate data from a t-distribution, other than standard normal, set the parameter "df" to something other than Inf.
+
+```{r t5data}
+sim.t(n=10, df=5)
+```
+
+If you do not specify df, it defaults to Inf.
+
+```{r normaldata2}
+sim.t(n=10)
+```
+
+Notice the numbers obtained the second time (without explicitly setting df) differed from the numbers we obtained the first time (explicitly setting df=Inf).  Different data arises because we are using a dynamic seed.  Even if we reexcecute commands identical to those shown above, we would get different data, each time.  To avoid this behavior, we need to fix the seed, either by using the set.seed() function (not shown), or by passing in the parameter "seed" (shown below).  With the same seed, you get the same data:
+
+```{r normaldataseed=6}
+sim.t(n=10, df=Inf, seed=6)
+```
+
+```{r normaldata2seed6}
+sim.t(n=10, seed=6)
+```
