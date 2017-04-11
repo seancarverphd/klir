@@ -4,7 +4,7 @@ author: "Sean Carver"
 output: html_document
 ---
 
-TO use KLI-R you must first source the code:
+To use KLI-R you must first source the code:
 
 ```{r sourcing}
 source('kli.R')
@@ -35,7 +35,7 @@ If you do not specify df, it defaults to Inf.
 sim.t(n=10)
 ```
 
-Notice the numbers obtained the second time (without explicitly setting df) differed from the numbers we obtained the first time (explicitly setting df=Inf).  Different data arises because we are using a dynamic seed.  Even if we reexcecute commands identical to those shown above, we would get different data, each time.  To avoid this behavior, we need to fix the seed, either by using the set.seed() function (not shown), or by passing in the parameter "seed" (shown below).  With the same seed, you get the same data:
+Notice the numbers obtained the second time (without explicitly setting df) differed from the numbers we obtained the first time (explicitly setting df=Inf).  Different data arise because we are using a dynamic seed.  Even if we reexcecute commands identical to those shown above, we would get different data, each time.  To avoid this behavior, we need to fix the seed, either by using the set.seed() function (not shown), or by passing in the parameter "seed" (shown below).  With the same seed, you get the same data:
 
 ```{r normaldataseed=6}
 sim.t(n=10, df=Inf, seed=6)
