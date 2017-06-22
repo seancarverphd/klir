@@ -10,7 +10,7 @@ To use KLI-R you must first source the code:
 source('kli.R')
 ```
 
-The next step is to code (and source) the models you need.  However, you can skip this step if it has already been done for you.  For the moment, KLI-R comes only with code to study models of the t-distribution with different degress of freedom (df) and the Normal distribution with df = Inf.  We will work with those models first, then I'll show you how to add your own models.
+The next step is to code (and source) the models you need.  However, you can skip this step if it has already been done for you.  For the moment, KLI-R comes only with code to study models of the t-distribution with different degress of freedom (df) and the standard Normal distribution with df = Inf.  We will work with those models first, then I'll show you how to add your own models.
 
 To use KLI-R you must have data.  You can gather data in an experiment or you can simulate data.  To simulate data, you must decide what model to use for the simulations.  If you want 10 samples from the standard normal distribution type:
 
@@ -43,4 +43,35 @@ sim.t(n=10, df=Inf, seed=6)
 
 ```{r normaldata2seed6}
 sim.t(n=10, seed=6)
+```
+
+The next step evaluates the log-likelihood that a model (the same model or another misspecified model) produces the data.  For models with distributions other than the t-distribution or the standard normal distribution, you will need to code the log-likelihood function and run it on your data.  However, for the t-distribution or standard normal, I have done this step for you with the function likes.t(x, df=Inf).  Here x is your data and is a required parameter.  The other parameter df is an optional parameter which defaults to Inf (standard normal), if you omit a value for df.
+
+First let's collect some more data and save it to the variable data.df5:
+
+```{r datadf5}
+data.df5 <- sim.t(n=100, df=5, seed=7)
+head(data.df5)
+```
+
+The log-likelihood at a given data point is the value of the log of the probability density function at that data point.
+
+The probability density function of the model in question (t with 5 degrees of freedom) is shaped roughly like a standard Normal density curve (i.e. a bell curve), except that there is more probability mass in the tails, and less probability mass in the center.  All models under consideration have density curves are symmetric with mode/mean/median at 0.
+
+Here is a picture of the density curves (using dt instead of likes.t, so no logs yet) for the t distribution with 5 degrees and t with infinite degrees of freedom (standard normal).
+
+```{r df5infdcurve}
+library(ggplot2)
+densitycurve5 <- function(x) {return(dt(x,df=5))}
+densitycurveinf <- function(x) {return(dt(x,df=Inf))}
+ggplot(NULL,aes(c(-3,3))) +
+  geom_area(stat="function",fun=densitycurve5,fill="red",alpha=I(.4),xlim = c(-3,3)) +
+  geom_area(stat="function",fun=densitycurveinf,fill="blue",alpha=I(.4),xlim=c(-3,3))
+```
+
+Now let's evaluate the log-likelihoods of all data points, with the model correctly specified.
+
+```{r likesdf5}
+likes.df5 <- likes.t(data.df5, df=5)
+head(likes.df5)
 ```
