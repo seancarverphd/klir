@@ -6,7 +6,7 @@
 #### EXAMPLE MODEL FUNCTIONS ####
 
 sim.t <- function(n, df=Inf, seed=FALSE) {
-  if (seed != FALSE) {
+  if (!identical(seed, FALSE)) {
     set.seed(seed)
   }
   # When df=Inf, rt is rnorm (default instead of error)
