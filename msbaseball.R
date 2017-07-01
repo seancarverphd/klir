@@ -35,8 +35,6 @@ FindTeams <- function(AllTeamData) {
     TeamAbbr <- c(TeamAbbr, substr(AllTeamData$GAME_ID,1,3))  
   return(levels(factor(TeamAbbr)))
 }
-
-# FindTransMat <- function(AllTeamData, HomeTeam="NYA"){
   
 TransMatList <- function(AllTeamData) {
   Teams <- FindTeams(AllTeamData)
@@ -51,6 +49,16 @@ TransMatList <- function(AllTeamData) {
   }
   names(TMList) <- Teams
   return(TMList)
+}
+
+Cloud <- function(AllTeamData) {
+  ML <- TransMatList(AllTeamData)
+  A <- c()
+  for (M in ML) {
+    A <- cbind(A,c(M))
+  }
+  colnames(A) <- names(ML)
+  return(A)
 }
 
 # Transition Matrices:
