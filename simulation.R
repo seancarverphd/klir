@@ -97,7 +97,7 @@ rowSums(NYAtransM)
 # Function that returns a specified team's transition matrix for their home games
 # IMPORTANT ****** # 
 FindTransMat <- function(AllTeamData, HomeTeam="NYA"){
-  TeamPlays <- AllTeamData[substr(data2011C$GAME_ID,1,3)==HomeTeam, ]  
+  TeamPlays <- AllTeamData[substr(AllTeamData$GAME_ID,1,3)==HomeTeam, ]  
   teamtransCount <- with(TeamPlays, table(STATE, NEW.STATE))
   teamtransProp <- prop.table(teamtransCount, 1)
   return(teamtransProp)
