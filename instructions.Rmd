@@ -65,9 +65,13 @@ library(ggplot2)
 densitycurve5 <- function(x) {return(dt(x,df=5))}
 densitycurveinf <- function(x) {return(dt(x,df=Inf))}
 ggplot(NULL,aes(c(-3,3))) +
-  geom_area(stat="function",fun=densitycurve5,fill="red",alpha=I(.4),xlim = c(-3,3)) +
-  geom_area(stat="function",fun=densitycurveinf,fill="blue",alpha=I(.4),xlim=c(-3,3))
+  geom_area(stat="function",fun=densitycurve5,fill="red",alpha=I(.4),xlim = c(-3,3), show.legend=TRUE) +
+  geom_area(stat="function",fun=densitycurveinf,fill="blue",alpha=I(.4),xlim=c(-3,3), show.legend=TRUE) +
+  xlab("Data Point") + ylab("Density") + scale_fill_manual(name="df",values=c("red","blue"),labels=factor(c(5,Inf))) +
+  theme(legend.position="right")
 ```
+
+The purple region of the plot is where the two density curves overlap.  The blue band is where the standard normal density curve lies above the t(5) density curve.  And the red bands are the heavy tails of the t-distribution.
 
 Now let's evaluate the log-likelihoods of all data points, with the model correctly specified.
 
