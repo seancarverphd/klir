@@ -3,48 +3,68 @@
 # American University.
 #
 # This script Calls FindTransMat() function 
-#   coded in script "simulation.R,"
-#   written by Rebeca Berger, American University, class of 2017.
+#   coded in script "simulation.R," written by Rebeca Berger, 
+#   class of 2017, American University.
 #   simulation.R uses data and code from Marchi & Albert.
 #   See: https://github.com/maxtoki/baseball_R
 #   Citation: Max Marchi and Jim Albert (2013), 
 #             Analyzing Baseball With R, CRC Press.
 #
 
+# More Readable State Names Than Used in Marchi & Albert
+# Code without final 3-out state XXX, needed for rows:
+newcode <- function() {
+  return(c("0|","0X|","0XX|",
+           "3|","3X|","3XX|",
+           "2|","2X|","2XX|",
+           "23|","23X|","23XX|",
+           "1|","1X|","1XX|",
+           "13|","13X|","13XX|",
+           "12|","12X|","12XX|",
+           "123|","123X|","123XX|"))
+}
+
+# Code with final 3-out state, needed for columns:
+newcodeXXX <- function() {
+  return(c(newcode(), "XXX"))
+}
+
+FindTeams <- function(AllTeamData) {
+  TeamAbbr <- c()
+  for (k in 1:length(AllTeamData)) { }
+    TeamAbbr <- c(TeamAbbr, substr(AllTeamData$GAME_ID,1,3))  
+  return(levels(factor(TeamAbbr)))
+}
+
+# FindTransMat <- function(AllTeamData, HomeTeam="NYA"){
+  
+TransMatList <- function(AllTeamData) {
+  Teams <- FindTeams(AllTeamData)
+  TMList <- list()
+  k <- 1
+  for (team in Teams) {
+    TM <- FindTransMat(AllTeamData,team)
+    row.names(TM)<-newcode()
+    colnames(TM)<-newcodeXXX()
+    TMList[[k]] <- TM
+    k <- k + 1
+  }
+  names(TMList) <- Teams
+  return(TMList)
+}
+
 # Transition Matrices:
 WAS <- FindTransMat(data2011C,"WAS") # Washington Nationals
 BAL <- FindTransMat(data2011C,"BAL") # Baltimore Orioles
 NYA <- FindTransMat(data2011C,"NYA") # New York Yankees
 
-# More Readable State Names Than Used in Marchi and Albert
-# Code without final 3-out state XXX, needed for rows:
-newcode <- c("0|","0X|","0XX|",
-             "3|","3X|","3XX|",
-             "2|","2X|","2XX|",
-             "23|","23X|","23XX|",
-             "1|","1X|","1XX|",
-             "13|","13X|","13XX|",
-             "12|","12X|","12XX|",
-             "123|","123X|","123XX|")
-
-# Code with final 3-out state, needed for columns:
-newcodeXXX <- c("0|","0X|","0XX|",
-             "3|","3X|","3XX|",
-             "2|","2X|","2XX|",
-             "23|","23X|","23XX|",
-             "1|","1X|","1XX|",
-             "13|","13X|","13XX|",
-             "12|","12X|","12XX|",
-             "123|","123X|","123XX|",
-             "XXX")
-
 # Assign new codes to transition matrices:
-row.names(WAS)<-newcode
-colnames(WAS)<-newcodeXXX
-row.names(BAL)<-newcode
-colnames(BAL)<-newcodeXXX
-row.names(NYA)<-newcode
-colnames(NYA)<-newcodeXXX
+row.names(WAS)<-newcode()
+colnames(WAS)<-newcodeXXX()
+row.names(BAL)<-newcode()
+colnames(BAL)<-newcodeXXX()
+row.names(NYA)<-newcode()
+colnames(NYA)<-newcodeXXX()
 
 # Baseball simulator
 sim.baseball <- function(n, transition.matrix, seed=FALSE) {
