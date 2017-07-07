@@ -13,7 +13,7 @@
 
 # More Readable State Names Than Used in Marchi & Albert
 # Code without final 3-out state XXX, needed for rows:
-newcode <- function() {
+rowcodes <- function() {
   return(c("0|","0X|","0XX|",
            "3|","3X|","3XX|",
            "2|","2X|","2XX|",
@@ -25,8 +25,8 @@ newcode <- function() {
 }
 
 # Code with final 3-out state, needed for columns:
-newcodeXXX <- function() {
-  return(c(newcode(), "XXX"))
+colcodes <- function() {
+  return(c(rowcodes(), "XXX"))
 }
 
 FindTeams <- function(AllTeamData) {
@@ -42,13 +42,33 @@ TransMatList <- function(AllTeamData) {
   k <- 1
   for (team in Teams) {
     TM <- FindTransMat(AllTeamData,team)
-    row.names(TM)<-newcode()
-    colnames(TM)<-newcodeXXX()
+    row.names(TM)<-rowcodes()
+    colnames(TM)<-colcodes()
     TMList[[k]] <- TM
     k <- k + 1
   }
   names(TMList) <- Teams
   return(TMList)
+}
+
+TransitionNameMatrix <- function() {
+  ROWS <- rowcodes()
+  COLS <- colcodes()
+  nROWS <- length(ROWS) 
+  nCOLS <- length(COLS)
+  v = rep(NA,nROWS)
+  M <- matrix(rep(v,nCOLS), ncol=nCOLS)
+  for (i in 1:nROWS) {
+    for (j in 1:nCOLS) {
+      trans1 <- paste(ROWS[i],COLS[j],sep="")
+      M[i,j] <- sub('\\|$','',trans1)
+    }
+  }
+  return(M)
+}
+
+TransitionNameVector <- function() {
+  return (c(TransitionNameMatrix()))
 }
 
 Cloud <- function(AllTeamData) {
@@ -58,6 +78,7 @@ Cloud <- function(AllTeamData) {
     A <- cbind(A,c(M))
   }
   colnames(A) <- names(ML)
+  row.names(A) <- TransitionNameVector()
   return(A)
 }
 
@@ -65,14 +86,18 @@ Cloud <- function(AllTeamData) {
 WAS <- FindTransMat(data2011C,"WAS") # Washington Nationals
 BAL <- FindTransMat(data2011C,"BAL") # Baltimore Orioles
 NYA <- FindTransMat(data2011C,"NYA") # New York Yankees
+ALL <- FindTransMat(data2011C)  # ALL teans together
+TM <- TransMatList(data2011C)  # List of one for each team
 
 # Assign new codes to transition matrices:
-row.names(WAS)<-newcode()
-colnames(WAS)<-newcodeXXX()
-row.names(BAL)<-newcode()
-colnames(BAL)<-newcodeXXX()
-row.names(NYA)<-newcode()
-colnames(NYA)<-newcodeXXX()
+row.names(WAS)<-rowcodes()
+colnames(WAS)<-colcodes()
+row.names(BAL)<-rowcodes()
+colnames(BAL)<-colcodes()
+row.names(NYA)<-rowcodes()
+colnames(NYA)<-colcodes()
+row.names(ALL)<-rowcodes()
+colnames(ALL)<-colcodes()
 
 # Baseball simulator
 sim.baseball <- function(n, transition.matrix, seed=FALSE) {
