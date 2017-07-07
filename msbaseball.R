@@ -29,13 +29,17 @@ colcodes <- function() {
   return(c(rowcodes(), "XXX"))
 }
 
+# Get a list of the abbreviations, used for all teams in a data set. 
+# (This list may differ from data set to data set, or year to year.)
 FindTeams <- function(AllTeamData) {
   TeamAbbr <- c()
   for (k in 1:length(AllTeamData)) { }
     TeamAbbr <- c(TeamAbbr, substr(AllTeamData$GAME_ID,1,3))  
   return(levels(factor(TeamAbbr)))
 }
-  
+
+# Get a list of all transition matrices, used for all team in a data set.
+# (This list may differ from data set to data set, or year to year.)
 TransMatList <- function(AllTeamData) {
   Teams <- FindTeams(AllTeamData)
   TMList <- list()
@@ -51,6 +55,9 @@ TransMatList <- function(AllTeamData) {
   return(TMList)
 }
 
+# Get a matrix concatenating pairs of strings for states.
+# These pairs correspond to labels of possible or impossible transitions.
+# For easy reading the trailing, '|' has been removed, where applicable.
 TransitionNameMatrix <- function() {
   ROWS <- rowcodes()
   COLS <- colcodes()
@@ -67,10 +74,12 @@ TransitionNameMatrix <- function() {
   return(M)
 }
 
+# The matrix of transition labels from TransitionNameMatrix() concatentated into a 600-dim vector.
 TransitionNameVector <- function() {
   return (c(TransitionNameMatrix()))
 }
 
+# A 600 by (number of teams) matrix of transition probabilities across teams.
 Cloud <- function(AllTeamData) {
   ML <- TransMatList(AllTeamData)
   A <- c()
@@ -82,12 +91,14 @@ Cloud <- function(AllTeamData) {
   return(A)
 }
 
-# Transition Matrices:
-WAS <- FindTransMat(data2011C,"WAS") # Washington Nationals
-BAL <- FindTransMat(data2011C,"BAL") # Baltimore Orioles
-NYA <- FindTransMat(data2011C,"NYA") # New York Yankees
-ALL <- FindTransMat(data2011C)  # ALL teans together
-TM <- TransMatList(data2011C)  # List of one for each team
+# Transition Matrices, specific teams 2011 MLB:
+WAS <- FindTransMat(data2011C,"WAS") # Washington Nationals, 2011.
+BAL <- FindTransMat(data2011C,"BAL") # Baltimore Orioles, 2011.
+NYA <- FindTransMat(data2011C,"NYA") # New York Yankees, 2011.
+ALL <- FindTransMat(data2011C)  # ALL MLB teams averaged together, 2011.
+
+# List of Transition Matrices, one for each team.
+TM <- TransMatList(data2011C)  # List for each team 2011 MLB team.
 
 # Assign new codes to transition matrices:
 row.names(WAS)<-rowcodes()
