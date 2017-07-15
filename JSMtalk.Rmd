@@ -33,13 +33,43 @@ ggplot(NULL,aes(c(-3,3))) +
 
 ## Example B: Baseball Markov Chain Models
 
-- Simulate innings with the model of the 2011 Baltimore Orioles.
+- Simulate innings with the model of the 2011 Baltimore Orioles (Marchi & Albert, 2013).
 ```{r bbsetup, cache=TRUE}
 source('simulation.R')
 source('msbaseball.R')
 ```
 ```{r bb, echo=TRUE}
-sim.baseball(5,BAL,seed=1)
+sim.baseball(5, BAL, seed=1)
 ```
-- How many innings are needed to correctly select the model of the Orioles over the model of the Yankees with 95% confidence?
+- How many innings are needed to correctly select the model of the Orioles over the model of the Yankees with confidence?
 - Joint work: Rebeca Berger, American University, Class of 2017.
+
+## Baseball Models Require Smoothing
+```{r klisetup, cache=TRUE}
+source('kli.R')
+```
+- Some log-likelihood ratios are infinite!
+```{r likeratios, echo=TRUE}
+innings.BAL <- sim.baseball(5, BAL, seed=1)
+likes.BAL <- likes.baseball(innings.BAL,BAL)
+likes.NYA <- likes.baseball(innings.BAL,NYA)
+like.ratios(likes.BAL,likes.NYA)
+```
+## Reason for Infinite Likelihood Ratios
+- Some rare transitions for Baltimore are deemed impossible---never happened---for New York.
+```{r infinitelr, echo=TRUE}
+innings.BAL 
+BAL['23X|','3X|']
+NYA['23X|','3X|']
+```
+## Multinomial Model
+- Teams do not find themselves in the 23X| state very often, so the sample of transitions from that state, for a given team, in a given season, is small.
+
+```{r transprob, echo=TRUE}
+BAL['23X|',BAL['23X|',]!=0]
+NYA['23X|',NYA['23X|',]!=0]
+```
+## Why number of samples needed?
+- Provides a measure of similarity between models which may be easier to interpret than the Kullback-Leibler Divergence.
+
+![](baseballimage.jpg)
