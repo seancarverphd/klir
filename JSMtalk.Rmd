@@ -42,3 +42,4 @@ source('msbaseball.R')
 sim.baseball(5,BAL,seed=1)
 ```
 - How many innings are needed to correctly select the model of the Orioles over the model of the Yankees with 95% confidence?
+- Joint work: Rebeca Berger, American University, Class of 2017.
