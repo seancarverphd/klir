@@ -37,7 +37,7 @@ sim.t(n=10)
 
 Notice the numbers obtained the second time (without explicitly setting df) differed from the numbers we obtained the first time (explicitly setting df=Inf).  Different data arise because we are using a dynamic seed.  Even if we reexcecute commands identical to those shown above, we would get different data, each time.  To avoid this behavior, we need to fix the seed, either by using the set.seed() function (not shown), or by passing in the parameter "seed" (shown below).  With the same seed, you get the same data:
 
-```{r normaldataseed=6}
+```{r normaldataseed6}
 sim.t(n=10, df=Inf, seed=6)
 ```
 
@@ -56,9 +56,9 @@ head(data.df5)
 
 The log-likelihood at a given data point is the value of the log of the probability density function at that data point.
 
-The probability density function of the model in question (t with 5 degrees of freedom) is shaped roughly like a standard Normal density curve (i.e. a bell curve), except that there is more probability mass in the tails, and less probability mass in the center.  All models under consideration have density curves are symmetric with mode/mean/median at 0.
+The probability density function of the model in question (t with 5 degrees of freedom) is shaped roughly like a standard Normal density curve (i.e. a bell curve), except that there is more probability mass in the tails, and less probability mass in the center.  
 
-Here is a picture of the density curves (using dt instead of likes.t, so no logs yet) for the t distribution with 5 degrees and t with infinite degrees of freedom (standard normal).
+Here is a picture of the density curves (I use the function "dt" here instead of "likes.t" to avoid taking the log) for the t distribution with 5 degrees (red) and t with infinite degrees of freedom (blue, standard normal).  The overlap is in purple.
 
 ```{r df5infdcurve}
 library(ggplot2)
@@ -71,11 +71,23 @@ ggplot(NULL,aes(c(-3,3))) +
   theme(legend.position="right")
 ```
 
-The purple region of the plot is where the two density curves overlap.  The blue band is where the standard normal density curve lies above the t(5) density curve.  And the red bands are the heavy tails of the t-distribution.
+The blue band shows where the standard normal density curve lies above the t(5) density curve (in the center).  And the red bands where the heavy tails of the t-distribution lie above the normal density curve.
 
-Now let's evaluate the log-likelihoods of all data points, with the model correctly specified.
+Now let's evaluate the log-likelihoods of 5-degree of freedom data points, with the model correctly specified:
 
 ```{r likesdf5}
 likes.df5 <- likes.t(data.df5, df=5)
 head(likes.df5)
+```
+
+Now let's evaluate the log-likelihood of the same data, with the model misspecified as infinite-degrees of freedom:
+
+```{r likesinf}
+likes.dfinf <- likes.t(data.df5, df=Inf)
+head(likes.df5)
+```
+Now let's evaluate the log of the likelihood ratio (difference of log-likelihoods):
+```{r likerat}
+likes.rat<-like.ratios(likes.df5, likes.dfinf)
+head(likes.rat)
 ```
