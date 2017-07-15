@@ -9,31 +9,20 @@ output: ioslides_presentation
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## Concept
-
-We apply statistical methods to simulated data to _study models_.
-
 ## Model Similarity
 
-- Common measure: Kullback-Leibler Divergence
-- My alternative: Number of samples needed for model selection with confidence
+How similar is a model of the New York Yankees Baseball team to a model of the Baltimore Orioles?
 
-## Example A: t(5) and N(0,1)
+- Common measure: Kullback-Leibler Divergence.
+- More easily interpretable measure: Number of Baltimore-half-innings we would need to simulate in order to correctly reject the model of the Yankees with given confidence level.
 
-```{r densitycurves}
-library(ggplot2)
-densitycurve5 <- function(x) {return(dt(x,df=5))}
-densitycurveinf <- function(x) {return(dt(x,df=Inf))}
-ggplot(NULL,aes(c(-3,3))) +
-  geom_area(stat="function",fun=densitycurve5,fill="red",alpha=I(.4),xlim = c(-3,3), show.legend=TRUE) +
-  geom_area(stat="function",fun=densitycurveinf,fill="blue",alpha=I(.4),xlim=c(-3,3), show.legend=TRUE) +
-  xlab("Data Point") + ylab("Density") + scale_fill_manual(name="df",values=c("red","blue"),labels=factor(c(5,Inf))) +
-  theme(legend.position="right")
-```
+## Concept
+- We apply statistical methods to _study models_, using simulated data, rather than to study experimental or observational data.
+- Models can come from experimental or observational data.
+- Beyond baseball, methods can be used with all probabilistic models---but you do need to simulate the models and compute the likelihoods of the simulations.
 
-## Example B: Baseball Markov Chain Models
-
-- Simulate innings with the model of the 2011 Baltimore Orioles (Marchi & Albert, 2013).
+## Simulate Baseball
+- Simulate half-innings with the model of the 2011 Baltimore Orioles, batting at home (Marchi & Albert, 2013):
 ```{r bbsetup, cache=TRUE}
 source('simulation.R')
 source('msbaseball.R')
@@ -41,21 +30,19 @@ source('msbaseball.R')
 ```{r bb, echo=TRUE}
 sim.baseball(5, BAL, seed=1)
 ```
-- How many innings are needed to correctly select the model of the Orioles over the model of the Yankees with confidence?
 - Joint work: Rebeca Berger, American University, Class of 2017.
 
-## Baseball Models Require Smoothing
+## Compute log-likelihood-ratios:
 ```{r klisetup, cache=TRUE}
 source('kli.R')
 ```
-- Some log-likelihood ratios are infinite!
 ```{r likeratios, echo=TRUE}
 innings.BAL <- sim.baseball(5, BAL, seed=1)
-likes.BAL <- likes.baseball(innings.BAL,BAL)
-likes.NYA <- likes.baseball(innings.BAL,NYA)
-like.ratios(likes.BAL,likes.NYA)
+likes.BAL.BAL <- likes.baseball(innings.BAL,BAL); likes.BAL.BAL
+likes.BAL.NYA <- likes.baseball(innings.BAL,NYA); likes.BAL.NYA
+like.ratios(likes.BAL.BAL,likes.BAL.NYA)
 ```
-## Reason for Infinite Likelihood Ratios
+## Baseball Models Require Smoothing
 - Some rare transitions for Baltimore are deemed impossible---never happened---for New York.
 ```{r infinitelr, echo=TRUE}
 innings.BAL 
@@ -69,7 +56,34 @@ NYA['23X|','3X|']
 BAL['23X|',BAL['23X|',]!=0]
 NYA['23X|',NYA['23X|',]!=0]
 ```
-## Why number of samples needed?
-- Provides a measure of similarity between models which may be easier to interpret than the Kullback-Leibler Divergence.
+## Why or Why Not?
 
 ![](baseballimage.jpg)
+
+- Advantages: provides a measure of similarity between models which may be easier to interpret than the Kullback-Leibler Divergence.
+
+- Disadvantages: harder and less natural to compute than Kullback-Leibler divergence.
+
+## New Model: t(5) and N(0,1)
+- For a new model you need to (1) code a simulator:
+```{r simt, echo=TRUE}
+samples.t5 <- sim.t(5,df=5,seed=7); samples.t5
+```
+- And (2) code the log-likelihood of two models:
+```{r, likest, echo=TRUE}
+likes.t5.t5 <- likes.t(samples.t5,df=5); likes.t5.t5
+likes.t5.normal <- likes.t(samples.t5,df=Inf); likes.t5.normal
+```
+
+## Density Curves: t(5) and N(0,1)
+
+```{r densitycurves}
+library(ggplot2)
+densitycurve5 <- function(x) {return(dt(x,df=5))}
+densitycurveinf <- function(x) {return(dt(x,df=Inf))}
+ggplot(NULL,aes(c(-3,3))) +
+  geom_area(stat="function",fun=densitycurve5,fill="red",alpha=I(.4),xlim = c(-3,3), show.legend=TRUE) +
+  geom_area(stat="function",fun=densitycurveinf,fill="blue",alpha=I(.4),xlim=c(-3,3), show.legend=TRUE) +
+  xlab("Data Point") + ylab("Density") + scale_fill_manual(name="df",values=c("red","blue"),labels=factor(c(5,Inf))) +
+  theme(legend.position="right")
+```
