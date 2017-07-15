@@ -85,7 +85,7 @@ hometeam <- substr(data2011C$GAME_ID,1,3)
 substr(data2011C$GAME_ID,1,3)=="NYA"
 sum(substr(data2011C$GAME_ID,1,3)=="NYA")
 NYAplays <- data2011C[substr(data2011C$GAME_ID,1,3)=="NYA",]
-View(NYAplays)
+# View(NYAplays)
 
 NYAtrans <- with(NYAplays, table(STATE, NEW.STATE))
 NYAtransM <- prop.table(NYAtrans, 1)
