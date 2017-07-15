@@ -1,0 +1,44 @@
+---
+title: "Number of Samples Needed For Model Selection with Confidence"
+author: "Sean Carver, Ph.D., American University"
+date: "August 1, 2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Concept
+
+We apply statistical methods to simulated data to _study models_.
+
+## Model Similarity
+
+- Common measure: Kullback-Leibler Divergence
+- My alternative: Number of samples needed for model selection with confidence
+
+## Example A: t(5) and N(0,1)
+
+```{r densitycurves}
+library(ggplot2)
+densitycurve5 <- function(x) {return(dt(x,df=5))}
+densitycurveinf <- function(x) {return(dt(x,df=Inf))}
+ggplot(NULL,aes(c(-3,3))) +
+  geom_area(stat="function",fun=densitycurve5,fill="red",alpha=I(.4),xlim = c(-3,3), show.legend=TRUE) +
+  geom_area(stat="function",fun=densitycurveinf,fill="blue",alpha=I(.4),xlim=c(-3,3), show.legend=TRUE) +
+  xlab("Data Point") + ylab("Density") + scale_fill_manual(name="df",values=c("red","blue"),labels=factor(c(5,Inf))) +
+  theme(legend.position="right")
+```
+
+## Example B: Baseball Markov Chain Models
+
+- Simulate innings with the model of the 2011 Baltimore Orioles.
+```{r bbsetup, cache=TRUE}
+source('simulation.R')
+source('msbaseball.R')
+```
+```{r bb, echo=TRUE}
+sim.baseball(5,BAL,seed=1)
+```
+- How many innings are needed to correctly select the model of the Orioles over the model of the Yankees with 95% confidence?
