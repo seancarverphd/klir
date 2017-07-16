@@ -158,7 +158,7 @@ abline(0,0)
 - For what sample size does the $5^{th}$ quantile cross zero? It's the number of samples needed to be 95% confident.
 
 ## Region of interest
-```{r roiplot, cache=FALSE}
+```{r roiplot, cache=TRUE}
 roi <- region.of.interest(ll.t5.t5, ll.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
                   confidence.level=0.95)
@@ -193,4 +193,23 @@ qr.reps <- repeated.estimates(reps=100, seed=2,
 head(qr.reps)
 mean(qr.reps)
 sd(qr.reps)
+```
+```{r repeatslr, echo=TRUE, warning=FALSE, cache=TRUE}
+slr.reps <- repeated.estimates(reps=100, seed=2, 
+                              quantile.regression=FALSE)
+```
+
+
+## Violin Plot of Estimates
+```{r bplot}
+require(ggplot2)
+qr.lab <- rep('Quantile',length(qr.reps))
+sl.lab <- rep('Simple',length(slr.reps))
+lab <- rbind(cbind(qr.lab),cbind(sl.lab))
+colnames(lab) <- 'lab'
+est <- rbind(cbind(qr.reps),cbind(slr.reps))
+colnames(est) <- 'est'
+df <- data.frame(est, lab)
+ggplot(df, aes(x=lab,y=est)) + geom_violin() + geom_boxplot(width=0.1) +
+  xlab('Type of Regression') + ylab('Estimate')
 ```
