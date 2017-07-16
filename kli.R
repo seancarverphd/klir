@@ -3,6 +3,8 @@
 # Copyright 2017
 # Provided Open Source, under GPL-version 3.0 License
 
+require(quantreg)
+
 #### EXAMPLE MODEL FUNCTIONS ####
 
 sim.t <- function(n, df=Inf, seed=FALSE) {
@@ -52,7 +54,7 @@ KL.variance <- function(likes.hyp, likes.alt, KL=FALSE) {
     KL <- KL.estimate(likes.hyp, likes.alt)
   }
   m <- length(likes.hyp)
-  sum.squared.deviations = sum((likes.hyp-likes.alt-KL)^2)
+  sum.squared.deviations <- sum((likes.hyp-likes.alt-KL)^2)
   return (sum.squared.deviations/(m^2))
 }
 
@@ -213,31 +215,60 @@ region.of.interest <- function(likes.hyp, likes.alt, max.samples=NULL, bootstrap
   before = beginning - 1
   during = ending - beginning + 1
   after = max.samples - ending
-  return (list(roi, quantiles.roi, before/max.samples, during/max.samples, after/max.samples))
+  L <- list(roi, quantiles.roi, before/max.samples, during/max.samples, after/max.samples)
+  names(L) <- c('samples','quantiles','prop.before','prop.during','prop.after')
+  return(L)
 }
 
-quantile.fitted <- function(likes.hyp, likes.alt, max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, confidence.level=.95) {
+quantile.fitted <- function(likes.hyp, likes.alt, 
+                            max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, 
+                            confidence.level=.95, quantile.regression=TRUE) {
   roi <- region.of.interest(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed, confidence.level)
-  return (lm(roi[[2]]~roi[[1]]))
+  if (quantile.regression) {
+  # Computes CRM twice.  Need to fix this.
+  crm <- bootstrap.matrix(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed)
+  M <- c()
+  for (k in 1:max.samples) {
+    M <- cbind(M,rep(k,bootstrap.rows))
+  }
+  M <- M[,roi$samples]
+  crm <- crm[,roi$samples]
+  summed.like.ratios <- data.frame(samples=as.vector(M),lrs=as.vector(crm))
+  return(rq(lrs~samples, tau=1-confidence.level, data=summed.like.ratios))
+  } else {
+    return (lm(roi$quantiles~roi$samples))
+  }
 }
 
-estimated.quantiles <- function(likes.hyp, likes.alt, max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, confidence.level=.95) {
+estimated.quantiles <- function(likes.hyp, likes.alt, 
+                                max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, 
+                                confidence.level=.95) {
   roi <- region.of.interest(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed, confidence.level)
-  fit <- lm(roi[[2]]~roi[[1]])
+  fit <- lm(roi$quantiles~roi$samples)
   b = fit$coefficients[1]
   m = fit$coefficients[2]
   names(b) <- NULL
   names(m) <- NULL
-  return (list(roi[[1]], m*roi[[1]] + b))
+  x <- roi$samples
+  yhat <- m*roi$samples + b
+  L <- list(x, yhat)
+  names(L) <- c('samples','est.quantiles')
+  return(L)
 }
 
-samples.needed <- function(likes.hyp, likes.alt, max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, confidence.level=.95) {
-  fit <- quantile.fitted(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed, confidence.level)
+samples.needed <- function(likes.hyp, likes.alt, 
+                           max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, 
+                           confidence.level=.95, quantile.regression=TRUE) {
+  fit <- quantile.fitted(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed, 
+                         confidence.level, quantile.regression)
   needed <- -fit$coefficients[1]/fit$coefficients[2]
   names(needed) <- NULL
   return(needed)
 }
 
-rounded.samples.needed <- function(likes.hyp, likes.alt, max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, confidence.level=.95) {
-  return (ceiling(samples.needed(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed, confidence.level)))
+rounded.samples.needed <- function(likes.hyp, likes.alt, 
+                                   max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, 
+                                   confidence.level=.95, quantile.regression=TRUE) {
+  return (ceiling(samples.needed(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed, 
+                                 confidence.level, quantile.regression)))
 }
