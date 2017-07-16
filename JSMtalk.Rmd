@@ -33,28 +33,28 @@ sim.baseball(5, BAL, seed=1)
 - Joint work: Rebeca Berger, American University, Class of 2017.
 
 ## Compute log-likelihood-ratios:
-```{r klisetup, cache=TRUE}
+```{r klisetup, cache=FALSE, message=FALSE}
 source('kli.R')
 ```
 ```{r likeratios, echo=TRUE}
 innings.BAL <- sim.baseball(5, BAL, seed=1)
-likes.BAL.BAL <- likes.baseball(innings.BAL,BAL); likes.BAL.BAL
-likes.BAL.NYA <- likes.baseball(innings.BAL,NYA); likes.BAL.NYA
-like.ratios(likes.BAL.BAL,likes.BAL.NYA)
+likes.BAL.BAL <- likes.baseball(innings.BAL, BAL); likes.BAL.BAL
+likes.BAL.NYA <- likes.baseball(innings.BAL, NYA); likes.BAL.NYA
+like.ratios(likes.BAL.BAL, likes.BAL.NYA)
 ```
 ## Baseball Models Require Smoothing
 - Some rare transitions for Baltimore are deemed impossible---never happened---for New York.
 ```{r infinitelr, echo=TRUE}
 innings.BAL 
-BAL['23X|','3X|']
-NYA['23X|','3X|']
+BAL['23X|', '3X|']
+NYA['23X|', '3X|']
 ```
 ## Multinomial Model
 - Teams do not find themselves in the 23X| state very often, so the sample of transitions from that state, for a given team, in a given season, is small.
 
 ```{r transprob, echo=TRUE}
-BAL['23X|',BAL['23X|',]!=0]
-NYA['23X|',NYA['23X|',]!=0]
+BAL['23X|', BAL['23X|',]!=0]
+NYA['23X|', NYA['23X|',]!=0]
 ```
 ## Why or Why Not?
 
@@ -62,17 +62,17 @@ NYA['23X|',NYA['23X|',]!=0]
 
 - Advantages: provides a measure of similarity between models which may be easier to interpret than the Kullback-Leibler Divergence.
 
-- Disadvantages: harder and less natural to compute than Kullback-Leibler divergence.
+- Disadvantages: harder and less natural to compute than the Kullback-Leibler divergence.
 
-## New Model: t(5) and N(0,1)
+## New Models: t(5) and N(0,1)
 - For a new model you need to (1) code a simulator:
 ```{r simt, echo=TRUE}
-samples.t5 <- sim.t(5,df=5,seed=7); samples.t5
+samples.t5 <- sim.t(5, df=5, seed=7); samples.t5
 ```
 - And (2) code the log-likelihood of two models:
 ```{r, likest, echo=TRUE}
-likes.t5.t5 <- likes.t(samples.t5,df=5); likes.t5.t5
-likes.t5.normal <- likes.t(samples.t5,df=Inf); likes.t5.normal
+likes.t5.t5 <- likes.t(samples.t5, df=5); likes.t5.t5
+likes.t5.normal <- likes.t(samples.t5, df=Inf); likes.t5.normal
 ```
 
 ## Density Curves: t(5) and N(0,1)
@@ -87,3 +87,101 @@ ggplot(NULL,aes(c(-3,3))) +
   xlab("Data Point") + ylab("Density") + scale_fill_manual(name="df",values=c("red","blue"),labels=factor(c(5,Inf))) +
   theme(legend.position="right")
 ```
+
+## Log-likelihood-ratios
+
+- Log-likelihood-ratios (difference in log-likelihoods):
+```{r likeratiostn, echo=TRUE}
+like.ratios(likes.t5.t5, likes.t5.normal)
+```
+
+## AIC and Kullback-Leiber Divergence
+
+- Akaike information criterion (sum of log-likelihood ratios, because we do not fit parameters):
+```{r aictn, echo=TRUE}
+aic(likes.t5.t5, likes.t5.normal)
+```
+- Kullback-Leibler Divergence (mean of log-likelihood ratios, estimate based on Monte Carlo integration):
+```{r kltn, echo=TRUE}
+KL.estimate(likes.t5.t5, likes.t5.normal)
+```
+
+## A Larger Sample
+
+We compute a larger sample of log-likelihoods for a bootstrap:
+```{r bootstrapsample, echo=TRUE, cache=TRUE}
+bs.t5 <- sim.t(200000, df=5, seed=2)
+ll.t5.t5 <- likes.t(bs.t5, df=5)
+ll.t5.normal <- likes.t(bs.t5, df=Inf)
+```
+
+## The Bootstrap Matrix
+
+- Each element of the $i^{th}$ column of the bootstrap matrix contains the sum of $i$ independent log-likelihood ratios.
+- The rows are independent.
+```{r bootstrapmatrix, echo=TRUE, cache=TRUE}
+bootstrap.matrix(ll.t5.t5, ll.t5.normal,
+                 max.samples=5, bootstrap.rows=7, seed=5)
+```
+
+## Select Correct Model?
+```{r chm, echo=TRUE, cache=TRUE}
+choose.hyp.matrix(ll.t5.t5, ll.t5.normal,
+                  max.samples=5, bootstrap.rows=7, seed=5)
+```
+## Count and Proportion of Choose Correct Model
+```{r counthm, echo=TRUE, cache=TRUE}
+count.choose.hyp(ll.t5.t5, ll.t5.normal,
+                  max.samples=5, bootstrap.rows=7, seed=5)
+prop.choose.hyp(ll.t5.t5, ll.t5.normal,
+                  max.samples=5, bootstrap.rows=7, seed=5)
+prop.choose.hyp(ll.t5.t5, ll.t5.normal,
+                  max.samples=5, bootstrap.rows=1000, seed=5)
+```
+
+## Quantiles of Columns
+- The quantile.columns list the value for which 95% (or some other confidence level) of the summed likelihood ratios is above that value.
+```{r qc, echo=TRUE, cache=TRUE}
+quantile.columns(ll.t5.t5, ll.t5.normal,
+                  max.samples=5, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+```
+
+## Plot of $5^{th}$ quantile
+```{r qcplot, cache=TRUE}
+quantile <- quantile.columns(ll.t5.t5, ll.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+plot(1:250,quantile,ylab="5th Quantile",xlab="Sample Size")
+abline(0,0)
+```
+- For what sample size does the $5^{th}$ quantile cross zero? It's the number of samples needed to be 95% confident.
+
+## Region of interest
+```{r roiplot, cache=FALSE}
+roi <- region.of.interest(ll.t5.t5, ll.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+eq <- estimated.quantiles(ll.t5.t5, ll.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+plot(roi[[1]],roi[[2]])
+lines(eq[[1]],eq[[2]])
+abline(0,0)
+```
+- We restrict the $5^{th}$ quantiles to a region of interest, then use regression to compute the intersection.
+
+## Computing number of samples
+```{r numberofsamples, echo=TRUE, cache=FALSE}
+samples.needed(ll.t5.t5, ll.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95, quantile.regression=FALSE)
+```
+- The following code repeats the same experiment shown above, each time drawing a new sample for bootstrapping and computing new likelioods.
+```{r repssetup}
+source('reps.R')
+```
+```{r repeated, echo=TRUE, cache=FALSE}
+repeated.estimates(reps=6, seed=1)
+```
+- Occasionally, the method fails and leads to nonsensical results.
