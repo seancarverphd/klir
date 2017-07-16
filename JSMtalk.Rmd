@@ -172,16 +172,25 @@ abline(0,0)
 - We restrict the $5^{th}$ quantiles to a region of interest, then use regression to compute the intersection.
 
 ## Computing number of samples
-```{r numberofsamples, echo=TRUE, cache=FALSE}
+```{r numberofsamples, echo=TRUE, cache=TRUE}
 samples.needed(ll.t5.t5, ll.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
                   confidence.level=0.95, quantile.regression=FALSE)
 ```
-- The following code repeats the same experiment shown above, each time drawing a new sample for bootstrapping and computing new likelioods.
+- The following code repeats the same experiment shown above, each time drawing a new sample for bootstrapping and computing new likelioods:
 ```{r repssetup}
 source('reps.R')
 ```
-```{r repeated, echo=TRUE, cache=FALSE}
-repeated.estimates(reps=6, seed=1)
+```{r repeated, echo=TRUE, cache=TRUE}
+repeated.estimates(reps=6, seed=1, quantile.regression=FALSE)
 ```
 - Occasionally, the method fails and leads to nonsensical results.
+
+## Performance of Estimator with Quantile Regression
+```{r repeatqr, echo=TRUE, warning=FALSE, cache=TRUE}
+qr.reps <- repeated.estimates(reps=100, seed=2, 
+                              quantile.regression=TRUE)
+head(qr.reps)
+mean(qr.reps)
+sd(qr.reps)
+```
