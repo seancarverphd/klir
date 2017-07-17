@@ -177,7 +177,7 @@ samples.needed(ll.t5.t5, ll.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
                   confidence.level=0.95, quantile.regression=FALSE)
 ```
-- The following code repeats the same experiment shown above, each time drawing a new sample for bootstrapping and computing new likelioods:
+- The following code repeats the same experiment shown above, each time drawing a new sample for bootstrapping and computing new likelihoods:
 ```{r repssetup}
 source('reps.R')
 ```
@@ -185,6 +185,10 @@ source('reps.R')
 repeated.estimates(reps=6, seed=1, quantile.regression=FALSE)
 ```
 - Occasionally, the method fails and leads to nonsensical results.
+
+## Testing quantile regression.
+- We apply the rq() function of CRAN quantreg package.
+- May be the wrong choice!
 
 ## Performance of Estimator with Quantile Regression
 ```{r repeatqr, echo=TRUE, warning=FALSE, cache=TRUE}
@@ -194,7 +198,7 @@ head(qr.reps)
 mean(qr.reps)
 sd(qr.reps)
 ```
-```{r repeatslr, echo=TRUE, warning=FALSE, cache=TRUE}
+```{r repeatslr, echo=FALSE, warning=FALSE, cache=TRUE}
 slr.reps <- repeated.estimates(reps=100, seed=2, 
                               quantile.regression=FALSE)
 ```
@@ -213,3 +217,28 @@ df <- data.frame(est, lab)
 ggplot(df, aes(x=lab,y=est)) + geom_violin() + geom_boxplot(width=0.1) +
   xlab('Type of Regression') + ylab('Estimate')
 ```
+
+## Conclusions
+
+- It takes $128 \pm 1$ samples to reject the standard Normal distribution using samples from the t-distribution with 5 degrees of freedom.
+- Our result required minutes of computation, and was robust.
+- We found only a modest improvement, if any, for quantile regression over simple linear regression.
+
+## Future Work
+
+- Loose ends: improve efficiency and robustness; parallelize algorithm.
+- Baseball models, including smoothing.  Joint work with Rebeca Berger.
+- Ion channels (continuous time Markov chain, with hidden states).
+- Substantial new direction: apply to models (e.g. Hodgkin-Huxley with channel noise), where likelihoods must be approximated with sequential Monte Carlo methods.  Derive rigorous bounds on number of samples needed.
+
+## Acknowledgments
+
+- These slides can be found at http://jsm17.seancarver.org/.
+- The code can be found at https://github.com/seancarverphd/klir.git
+- Baseball data available from Max Marchi, see: https://github.com/maxtoki/baseball_R
+- Citation: Max Marchi and Jim Albert (2013), _Analyzing Baseball With R_, CRC Press.
+- Baseball collaborator: Rebeca Berger, American University, Class of 2017.
+
+## Questions?
+
+![](BaseballPitch.jpg)
