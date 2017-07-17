@@ -16,6 +16,8 @@ How similar is a model of the New York Yankees Baseball team to a model of the B
 - Common measure: Kullback-Leibler Divergence.
 - More easily interpretable measure: Number of Baltimore-half-innings we would need to simulate in order to correctly reject the model of the Yankees with given confidence level.
 
+![](orioles_cropped.jpg)
+
 ## Concept
 - We apply statistical methods to _study models_, using simulated data, rather than to study experimental or observational data.
 - Models can come from experimental or observational data.
