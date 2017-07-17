@@ -23,6 +23,7 @@ How similar is a model of the New York Yankees Baseball team to a model of the B
 
 ## Simulate Baseball
 - Simulate half-innings with the model of the 2011 Baltimore Orioles, batting at home (Marchi & Albert, 2013):
+- Joint work: Rebeca Berger, American University, Class of 2017.
 ```{r bbsetup, cache=TRUE}
 source('simulation.R')
 source('msbaseball.R')
@@ -30,7 +31,6 @@ source('msbaseball.R')
 ```{r bb, echo=TRUE}
 sim.baseball(5, BAL, seed=1)
 ```
-- Joint work: Rebeca Berger, American University, Class of 2017.
 
 ## Compute log-likelihood-ratios:
 ```{r klisetup, cache=FALSE, message=FALSE}
@@ -140,7 +140,7 @@ prop.choose.hyp(ll.t5.t5, ll.t5.normal,
 ```
 
 ## Quantiles of Columns
-- The quantile.columns list the value for which 95% (or some other confidence level) of the summed likelihood ratios is above that value.
+- The quantile.columns list the value for which 95% (or some other confidence level) of the summed likelihood ratios is above that value (i.e. the $5^{th}$ percentile).
 ```{r qc, echo=TRUE, cache=TRUE}
 quantile.columns(ll.t5.t5, ll.t5.normal,
                   max.samples=5, bootstrap.rows=1000, seed=5,
