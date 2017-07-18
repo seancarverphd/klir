@@ -11,10 +11,10 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Model Similarity
 
-How similar is a model of the New York Yankees Baseball team to a model of the Baltimore Orioles?
+**Question:** How similar is the model of the NY Yankees Baseball team to the model of our home team, Baltimore Orioles?
 
-- Common measure: Kullback-Leibler Divergence.
-- More easily interpretable measure: Number of Baltimore-half-innings we would need to simulate in order to correctly reject the model of the Yankees with given confidence level.
+- Common answer: The Kullback-Leibler Divergence.
+- Different answer: The number of Baltimore-half-innings we would need to simulate in order to correctly reject the model of the Yankees with given confidence level.
 
 ![](orioles_cropped.jpg)
 
@@ -58,7 +58,7 @@ NYA['23X|', '3X|']
 BAL['23X|', BAL['23X|',]!=0]
 NYA['23X|', NYA['23X|',]!=0]
 ```
-## Why or Why Not?
+## Why (or Why Not) Samples Needed?
 
 ![](baseballimage.jpg)
 
