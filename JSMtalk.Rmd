@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ![](orioles_cropped.jpg)
 
-## Concept
+## Scope
 - We apply statistical methods to _study models_, using simulated data, rather than to study experimental or observational data.
 - Models can come from experimental or observational data.
 - Beyond baseball, methods can be used with all probabilistic models---but you do need to simulate the models and compute the likelihoods of the simulations.
@@ -33,7 +33,6 @@ source('msbaseball.R')
 ```{r bb, echo=TRUE}
 sim.baseball(5, BAL, seed=1)
 ```
-- See http://jsm17.seancarver.org/ to inspect slides.
 
 ## Compute log-likelihood-ratios:
 ```{r klisetup, cache=FALSE, message=FALSE}
@@ -52,9 +51,8 @@ innings.BAL
 BAL['23X|', '3X|']
 NYA['23X|', '3X|']
 ```
-## Multinomial Model
-- Teams do not find themselves in the 23X| state very often, so the sample of transitions from that state, for a given team, in a given season, is small.
-
+## Problem Arises Frequently
+- The 23X| state is fairly rare, so there are quite a few nonoverlapping transitions from that state.
 ```{r transprob, echo=TRUE}
 BAL['23X|', BAL['23X|',]!=0]
 NYA['23X|', NYA['23X|',]!=0]
@@ -68,18 +66,17 @@ NYA['23X|', NYA['23X|',]!=0]
 - Disadvantages: harder and less natural to compute than the Kullback-Leibler divergence.
 
 ## New Models: t(5) and N(0,1)
-- For a new model you need to (1) code a simulator:
+- For a new model you need to code (1) a simulator, (2) the log-likelihood of the simulations, for both the correctly specified and misspecified models:
 ```{r simt, echo=TRUE}
-samples.t5 <- sim.t(5, df=5, seed=7); samples.t5
+samples.t5 <- sim.t(200000, df=5, seed=7)
+likes.t5.t5 <- likes.t(samples.t5, df=5) 
+likes.t5.normal <- likes.t(samples.t5, df=Inf)
+head(like.ratios(likes.t5.t5, likes.t5.normal), 5)
 ```
-- And (2) code the log-likelihood of two models:
-```{r, likest, echo=TRUE}
-likes.t5.t5 <- likes.t(samples.t5, df=5); likes.t5.t5
-likes.t5.normal <- likes.t(samples.t5, df=Inf); likes.t5.normal
-```
+- Adding ratios gives the log-likelihood ratio (Delta AIC) of an ensemble.  Positive selects correct model.
+- Averaging ratios give a Monte Carlo estimate of the Kullback-Leibler Divergence.
 
 ## Density Curves: t(5) and N(0,1)
-
 ```{r densitycurves}
 library(ggplot2)
 densitycurve5 <- function(x) {return(dt(x,df=5))}
@@ -91,68 +88,47 @@ ggplot(NULL,aes(c(-3,3))) +
   theme(legend.position="right")
 ```
 
-## Log-likelihood-ratios
-
-- Log-likelihood-ratios (difference in log-likelihoods):
-```{r likeratiostn, echo=TRUE}
-like.ratios(likes.t5.t5, likes.t5.normal)
-```
-
-## AIC and Kullback-Leiber Divergence
-
-- Akaike information criterion (sum of log-likelihood ratios, because we do not fit parameters):
-```{r aictn, echo=TRUE}
-aic(likes.t5.t5, likes.t5.normal)
-```
-- Kullback-Leibler Divergence (mean of log-likelihood ratios, estimate based on Monte Carlo integration):
-```{r kltn, echo=TRUE}
-KL.estimate(likes.t5.t5, likes.t5.normal)
-```
-
-## A Larger Sample
-
-We compute a larger sample of log-likelihoods for a bootstrap:
-```{r bootstrapsample, echo=TRUE, cache=TRUE}
-bs.t5 <- sim.t(200000, df=5, seed=2)
-ll.t5.t5 <- likes.t(bs.t5, df=5)
-ll.t5.normal <- likes.t(bs.t5, df=Inf)
-```
-
 ## The Bootstrap Matrix
-
 - Each element of the $i^{th}$ column of the bootstrap matrix contains the sum of $i$ independent log-likelihood ratios.
 - The rows are independent.
 ```{r bootstrapmatrix, echo=TRUE, cache=TRUE}
-bootstrap.matrix(ll.t5.t5, ll.t5.normal,
+bootstrap.matrix(likes.t5.t5, likes.t5.normal,
                  max.samples=5, bootstrap.rows=7, seed=5)
 ```
 
 ## Select Correct Model?
 ```{r chm, echo=TRUE, cache=TRUE}
-choose.hyp.matrix(ll.t5.t5, ll.t5.normal,
+choose.hyp.matrix(likes.t5.t5, likes.t5.normal,
                   max.samples=5, bootstrap.rows=7, seed=5)
 ```
-## Count and Proportion of Choose Correct Model
+
+## Count and Proportion of Correct
 ```{r counthm, echo=TRUE, cache=TRUE}
-count.choose.hyp(ll.t5.t5, ll.t5.normal,
+count.choose.hyp(likes.t5.t5, likes.t5.normal,
                   max.samples=5, bootstrap.rows=7, seed=5)
-prop.choose.hyp(ll.t5.t5, ll.t5.normal,
+prop.choose.hyp(likes.t5.t5, likes.t5.normal,
                   max.samples=5, bootstrap.rows=7, seed=5)
-prop.choose.hyp(ll.t5.t5, ll.t5.normal,
-                  max.samples=5, bootstrap.rows=1000, seed=5)
+```
+
+## Proportion Correct (1000 Rows)
+```{r plotprop}
+prophyp <- prop.choose.hyp(likes.t5.t5, likes.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5)
+plot(1:250,prophyp,ylab="Proportion Correct",xlab="Sample Size")
+abline(0.95,0)
 ```
 
 ## Quantiles of Columns
-- The quantile.columns list the value for which 95% (or some other confidence level) of the summed likelihood ratios is above that value (i.e. the $5^{th}$ percentile).
+- The "proportion correct" crosses 0.95 at the same location where the $5^{th}$ percentile crosses zero.
 ```{r qc, echo=TRUE, cache=TRUE}
-quantile.columns(ll.t5.t5, ll.t5.normal,
+quantile.columns(likes.t5.t5, likes.t5.normal,
                   max.samples=5, bootstrap.rows=1000, seed=5,
                   confidence.level=0.95)
 ```
 
 ## Plot of $5^{th}$ quantile
 ```{r qcplot, cache=TRUE}
-quantile <- quantile.columns(ll.t5.t5, ll.t5.normal,
+quantile <- quantile.columns(likes.t5.t5, likes.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
                   confidence.level=0.95)
 plot(1:250,quantile,ylab="5th Quantile",xlab="Sample Size")
@@ -162,10 +138,10 @@ abline(0,0)
 
 ## Region of interest
 ```{r roiplot, cache=TRUE}
-roi <- region.of.interest(ll.t5.t5, ll.t5.normal,
+roi <- region.of.interest(likes.t5.t5, likes.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
                   confidence.level=0.95)
-eq <- estimated.quantiles(ll.t5.t5, ll.t5.normal,
+eq <- estimated.quantiles(likes.t5.t5, likes.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
                   confidence.level=0.95)
 plot(roi[[1]],roi[[2]])
@@ -176,7 +152,7 @@ abline(0,0)
 
 ## Computing number of samples
 ```{r numberofsamples, echo=TRUE, cache=TRUE}
-samples.needed(ll.t5.t5, ll.t5.normal,
+samples.needed(likes.t5.t5, likes.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
                   confidence.level=0.95, quantile.regression=FALSE)
 ```
@@ -189,29 +165,19 @@ repeated.estimates(reps=6, seed=1, quantile.regression=FALSE)
 ```
 - Occasionally, the method fails and leads to nonsensical results.
 
-## Testing quantile regression.
-- We apply the rq() function of CRAN quantreg package.
-- May be the wrong choice!
-
-## Performance of Estimator with Quantile Regression
-```{r repeatqr, echo=TRUE, warning=FALSE, cache=TRUE}
+## Violin Plot of Estimates
+```{r repeatqr, warning=FALSE, cache=TRUE}
 qr.reps <- repeated.estimates(reps=100, seed=2, 
                               quantile.regression=TRUE)
-head(qr.reps)
-mean(qr.reps)
-sd(qr.reps)
 ```
 ```{r repeatslr, echo=FALSE, warning=FALSE, cache=TRUE}
 slr.reps <- repeated.estimates(reps=100, seed=2, 
                               quantile.regression=FALSE)
 ```
-
-
-## Violin Plot of Estimates
 ```{r bplot}
 require(ggplot2)
-qr.lab <- rep('Quantile',length(qr.reps))
-sl.lab <- rep('Simple',length(slr.reps))
+qr.lab <- rep('quantreg::rq()',length(qr.reps))
+sl.lab <- rep('lm()',length(slr.reps))
 lab <- rbind(cbind(qr.lab),cbind(sl.lab))
 colnames(lab) <- 'lab'
 est <- rbind(cbind(qr.reps),cbind(slr.reps))
@@ -223,24 +189,19 @@ ggplot(df, aes(x=lab,y=est)) + geom_violin() + geom_boxplot(width=0.1) +
 
 ## Conclusions
 
-- It takes $128 \pm 1$ samples to reject the standard Normal distribution using samples from the t-distribution with 5 degrees of freedom.
-- Our result required minutes of computation, and was robust.
-- We found only a modest improvement, if any, for quantile regression over simple linear regression.
+- Based on a distribution derived from 100 estimates, takes $128 \pm 1$ (approximately, MEAN +/- 2 STANDARD ERROR) to correctly reject the standard Normal distribution using samples from the t-distribution with 5 degrees of freedom.
+- The above result required minutes of computation, not hours, and was robust.
+- We found little, if any, improvement for the quantreg::rq() function over the two step: quantile() --> lm().  Having the the result of the intermediate step allowed greater efficiency.
 
 ## Future Work
+I am interested in models in Neuroscience where the likelihood must be approximated with Sequential Monte Carlo techniques.
 
-- Loose ends: improve efficiency and robustness; parallelize algorithm.
-- Baseball models, including smoothing.  Joint work with Rebeca Berger.
-- Ion channels (continuous time Markov chain, with hidden states).
-- Substantial new direction: apply to models (e.g. Hodgkin-Huxley with channel noise), where likelihoods must be approximated with sequential Monte Carlo methods.  Derive rigorous bounds on number of samples needed.
-
-## Acknowledgments
-
-- These slides can be found at http://jsm17.seancarver.org/.
-- The code can be found at https://github.com/seancarverphd/klir.git
-- Baseball data available from Max Marchi, see: https://github.com/maxtoki/baseball_R
-- Citation: Max Marchi and Jim Albert (2013), _Analyzing Baseball With R_, CRC Press.
+## Links & Acknowledgments
+- These slides can be found at http://jsm17.seancarver.org/talk.html.
+- My code can be found at https://github.com/seancarverphd/klir.git
 - Baseball collaborator: Rebeca Berger, American University, Class of 2017.
+- Baseball data (needed to run our baseball code) available from Max Marchi, see: https://github.com/maxtoki/baseball_R
+- Citation: Max Marchi and Jim Albert (2013), _Analyzing Baseball With R_, CRC Press.
 
 ## Questions?
 
