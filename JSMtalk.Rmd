@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Model Similarity
 
-**Question:** How similar is the model of the NY Yankees Baseball team to the model of our home team, Baltimore Orioles?
+**Question:** How similar is the model of the NY Yankees Baseball team to the model of our home team, the Baltimore Orioles?
 
 - Common answer: The Kullback-Leibler Divergence.
 - Different answer: The number of Baltimore-half-innings we would need to simulate in order to correctly reject the model of the Yankees with given confidence level.
@@ -33,6 +33,7 @@ source('msbaseball.R')
 ```{r bb, echo=TRUE}
 sim.baseball(5, BAL, seed=1)
 ```
+- See http://jsm17.seancarver.org/ to inspect slides.
 
 ## Compute log-likelihood-ratios:
 ```{r klisetup, cache=FALSE, message=FALSE}
