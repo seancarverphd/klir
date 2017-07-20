@@ -1,4 +1,4 @@
-repeated.estimates <- function(reps=6, seed=FALSE, quantile.regression=TRUE) {
+repeated.estimates <- function(reps=6, seed=FALSE, quantile.regression=FALSE) {
   if (seed != FALSE) {
     set.seed(seed)
   }

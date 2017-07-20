@@ -222,7 +222,7 @@ region.of.interest <- function(likes.hyp, likes.alt, max.samples=NULL, bootstrap
 
 quantile.fitted <- function(likes.hyp, likes.alt, 
                             max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, 
-                            confidence.level=.95, quantile.regression=TRUE) {
+                            confidence.level=.95, quantile.regression=FALSE) {
   roi <- region.of.interest(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed, confidence.level)
   if (quantile.regression) {
   # Computes CRM twice.  Need to fix this.
@@ -258,7 +258,7 @@ estimated.quantiles <- function(likes.hyp, likes.alt,
 
 samples.needed <- function(likes.hyp, likes.alt, 
                            max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, 
-                           confidence.level=.95, quantile.regression=TRUE) {
+                           confidence.level=.95, quantile.regression=FALSE) {
   fit <- quantile.fitted(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed, 
                          confidence.level, quantile.regression)
   needed <- -fit$coefficients[1]/fit$coefficients[2]
@@ -268,7 +268,7 @@ samples.needed <- function(likes.hyp, likes.alt,
 
 rounded.samples.needed <- function(likes.hyp, likes.alt, 
                                    max.samples=NULL, bootstrap.rows=TRUE, seed=FALSE, 
-                                   confidence.level=.95, quantile.regression=TRUE) {
+                                   confidence.level=.95, quantile.regression=FALSE) {
   return (ceiling(samples.needed(likes.hyp, likes.alt, max.samples, bootstrap.rows, seed, 
                                  confidence.level, quantile.regression)))
 }
