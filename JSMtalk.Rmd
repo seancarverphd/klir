@@ -19,12 +19,12 @@ knitr::opts_chunk$set(echo = FALSE)
 ![](orioles_cropped.jpg)
 
 ## Scope
-- We apply statistical methods to _study models_, using simulated data, rather than to study experimental or observational data.
+- I apply statistics to _study models_, using simulated data.
 - Models can come from experimental or observational data.
-- Beyond baseball, methods can be used with all probabilistic models---but you do need to simulate the models and compute the likelihoods of the simulations.
+- Beyond baseball, my methods will work for any probabilistic model---provided you can simulate the model and compute the likelihoods of the simulations.
 
-## Simulate Baseball
-- Simulate half-innings with the model of the 2011 Baltimore Orioles, batting at home (Marchi & Albert, 2013):
+## Baseball Model
+- Markov Chain fitted from Baltimore Orioles, batting at home (Marchi & Albert, 2013):
 - Joint work: Rebeca Berger, American University, Class of 2017.
 ```{r bbsetup, cache=TRUE}
 source('simulation.R')
@@ -32,49 +32,21 @@ source('msbaseball.R')
 ```
 ```{r bb, echo=TRUE}
 sim.baseball(5, BAL, seed=1)
+likes.baseball(sim.baseball(5, BAL, seed=1), BAL);
 ```
 
-## Compute log-likelihood-ratios:
+## New Models: t(5) and N(0,1)
 ```{r klisetup, cache=FALSE, message=FALSE}
 source('kli.R')
 ```
-```{r likeratios, echo=TRUE}
-innings.BAL <- sim.baseball(5, BAL, seed=1)
-likes.BAL.BAL <- likes.baseball(innings.BAL, BAL); likes.BAL.BAL
-likes.BAL.NYA <- likes.baseball(innings.BAL, NYA); likes.BAL.NYA
-like.ratios(likes.BAL.BAL, likes.BAL.NYA)
-```
-## Baseball Models Require Smoothing
-- Some rare transitions for Baltimore are deemed impossible---never happened---for New York.
-```{r infinitelr, echo=TRUE}
-innings.BAL 
-BAL['23X|', '3X|']
-NYA['23X|', '3X|']
-```
-## Problem Arises Frequently
-- The 23X| state is fairly rare, so there are quite a few nonoverlapping transitions from that state.
-```{r transprob, echo=TRUE}
-BAL['23X|', BAL['23X|',]!=0]
-NYA['23X|', NYA['23X|',]!=0]
-```
-## Why (or Why Not) Samples Needed?
-
-![](baseballimage.jpg)
-
-- Advantages: provides a measure of similarity between models which may be easier to interpret than the Kullback-Leibler Divergence.
-
-- Disadvantages: harder and less natural to compute than the Kullback-Leibler divergence.
-
-## New Models: t(5) and N(0,1)
-- For a new model you need to code (1) a simulator, (2) the log-likelihood of the simulations, for both the correctly specified and misspecified models:
 ```{r simt, echo=TRUE}
-samples.t5 <- sim.t(200000, df=5, seed=7)
+samples.t5 <- sim.t(200000, df=5, seed=7); head(samples.t5,5)
 likes.t5.t5 <- likes.t(samples.t5, df=5) 
 likes.t5.normal <- likes.t(samples.t5, df=Inf)
 head(like.ratios(likes.t5.t5, likes.t5.normal), 5)
 ```
-- Adding ratios gives the log-likelihood ratio (Delta AIC) of an ensemble.  Positive selects correct model.
-- Averaging ratios give a Monte Carlo estimate of the Kullback-Leibler Divergence.
+- A positive log-likelihood-ratio selects correct model.
+- Adding ratios gives the log-likelihood-ratio of an ensemble.
 
 ## Density Curves: t(5) and N(0,1)
 ```{r densitycurves}
@@ -96,37 +68,16 @@ bootstrap.matrix(likes.t5.t5, likes.t5.normal,
                  max.samples=5, bootstrap.rows=7, seed=5)
 ```
 
-## Select Correct Model?
-```{r chm, echo=TRUE, cache=TRUE}
-choose.hyp.matrix(likes.t5.t5, likes.t5.normal,
-                  max.samples=5, bootstrap.rows=7, seed=5)
-```
-
-## Count and Proportion of Correct
-```{r counthm, echo=TRUE, cache=TRUE}
-count.choose.hyp(likes.t5.t5, likes.t5.normal,
-                  max.samples=5, bootstrap.rows=7, seed=5)
-prop.choose.hyp(likes.t5.t5, likes.t5.normal,
-                  max.samples=5, bootstrap.rows=7, seed=5)
-```
-
-## Proportion Correct (1000 Rows)
+## Proportion Correct in Each Column
 ```{r plotprop}
 prophyp <- prop.choose.hyp(likes.t5.t5, likes.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5)
-plot(1:250,prophyp,ylab="Proportion Correct",xlab="Sample Size")
+plot(1:250,prophyp,ylab="Proportion Correct",xlab="Sample Size", main="Based on 1000 Rows")
 abline(0.95,0)
 ```
+- Proportion is discrete (multiple of 1/#rows)---not good for regression.
 
-## Quantiles of Columns
-- The "proportion correct" crosses 0.95 at the same location where the $5^{th}$ percentile crosses zero.
-```{r qc, echo=TRUE, cache=TRUE}
-quantile.columns(likes.t5.t5, likes.t5.normal,
-                  max.samples=5, bootstrap.rows=1000, seed=5,
-                  confidence.level=0.95)
-```
-
-## Plot of $5^{th}$ quantile
+## $5^{th}$ Percentile of Log-Likelihood
 ```{r qcplot, cache=TRUE}
 quantile <- quantile.columns(likes.t5.t5, likes.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
@@ -134,7 +85,7 @@ quantile <- quantile.columns(likes.t5.t5, likes.t5.normal,
 plot(1:250,quantile,ylab="5th Quantile",xlab="Sample Size")
 abline(0,0)
 ```
-- For what sample size does the $5^{th}$ quantile cross zero? It's the number of samples needed to be 95% confident.
+- The "proportion correct" crosses 0.95 at the same location where the $5^{th}$ percentile (not discrete) crosses zero.
 
 ## Region of interest
 ```{r roiplot, cache=TRUE}
@@ -165,7 +116,7 @@ repeated.estimates(reps=6, seed=1, quantile.regression=FALSE)
 ```
 - Occasionally, the method fails and leads to nonsensical results.
 
-## Violin Plot of Estimates
+## Density of Estimates
 ```{r repeatqr, warning=FALSE, cache=TRUE}
 qr.reps <- repeated.estimates(reps=100, seed=2, 
                               quantile.regression=TRUE)
@@ -177,27 +128,37 @@ slr.reps <- repeated.estimates(reps=100, seed=2,
 ```{r bplot}
 require(ggplot2)
 qr.lab <- rep('quantreg::rq()',length(qr.reps))
-sl.lab <- rep('lm()',length(slr.reps))
+sl.lab <- rep('quantile(); lm()',length(slr.reps))
 lab <- rbind(cbind(qr.lab),cbind(sl.lab))
 colnames(lab) <- 'lab'
 est <- rbind(cbind(qr.reps),cbind(slr.reps))
 colnames(est) <- 'est'
 df <- data.frame(est, lab)
 ggplot(df, aes(x=lab,y=est)) + geom_violin() + geom_boxplot(width=0.1) +
-  xlab('Type of Regression') + ylab('Estimate')
+  xlab('Type of Regression') + ylab('Estimate') + 
+  theme(axis.text.x=element_text(size=15))
 ```
 
 ## Conclusions
 
-- Based on a distribution derived from 100 estimates, takes $128 \pm 1$ (approximately, MEAN +/- 2 STANDARD ERROR) to correctly reject the standard Normal distribution using samples from the t-distribution with 5 degrees of freedom.
-- The above result required minutes of computation, not hours, and was robust.
 - We found little, if any, improvement for the quantreg::rq() function over the two step: quantile() --> lm().  Having the the result of the intermediate step allowed greater efficiency.
+- Based on a distribution derived from 100 estimates, it takes $128 \pm 1$ (approximately, MEAN +/- 2 STANDARD ERROR) to correctly reject the standard Normal distribution using samples from the t-distribution with 5 degrees of freedom.
+- The above result required minutes of computation, not hours, and was robust.
+
+## Why (or Why Not) Samples Needed?
+
+![](baseballimage.jpg)
+
+- Advantages: provides a measure of similarity between models which may be easier to interpret than the Kullback-Leibler Divergence.
+
+- Disadvantages: harder and less natural to compute than the Kullback-Leibler divergence.
+
 
 ## Future Work
 I am interested in models in Neuroscience where the likelihood must be approximated with Sequential Monte Carlo techniques.
 
 ## Links & Acknowledgments
-- These slides can be found at http://jsm17.seancarver.org/talk.html.
+- These slides can be found at http://jsm17.seancarver.org/talk.html
 - My code can be found at https://github.com/seancarverphd/klir.git
 - Baseball collaborator: Rebeca Berger, American University, Class of 2017.
 - Baseball data (needed to run our baseball code) available from Max Marchi, see: https://github.com/maxtoki/baseball_R
