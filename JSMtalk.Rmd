@@ -11,15 +11,15 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Model Similarity
 
-**Question:** How similar is the model of the NY Yankees Baseball team to the model of our home team, the Baltimore Orioles?
+**Question:** How similar is the model of the NY Yankees baseball team to the model of our home team, the Baltimore Orioles?
 
 - Common answer: The Kullback-Leibler Divergence.
-- Different answer: The number of Baltimore-half-innings we would need to simulate in order to correctly reject the model of the Yankees with given confidence level.
+- Different answer: The number of Baltimore-at-bat-half-innings we would need to simulate to correctly reject the model of the Yankees, 95 percent of the time.
 
 ![](orioles_cropped.jpg)
 
 ## Baseball Model
-- Markov Chain fitted from Baltimore Orioles, batting at home (Marchi & Albert, 2013):
+- Markov Chain fitted from the 2011 Baltimore Orioles, batting at home (Marchi & Albert, 2013):
 - Joint work: Rebeca Berger, American University, Class of 2017.
 ```{r bbsetup, cache=TRUE}
 source('simulation.R')
@@ -31,6 +31,18 @@ likes.baseball(sim.baseball(5, BAL, seed=1), BAL);
 ```
 
 ## New Models: t(5) and N(0,1)
+```{r densitycurves}
+library(ggplot2)
+densitycurve5 <- function(x) {return(dt(x,df=5))}
+densitycurveinf <- function(x) {return(dt(x,df=Inf))}
+ggplot(NULL,aes(c(-3,3))) +
+  geom_area(stat="function",fun=densitycurve5,fill="red",alpha=I(.4),xlim = c(-3,3), show.legend=TRUE) +
+  geom_area(stat="function",fun=densitycurveinf,fill="blue",alpha=I(.4),xlim=c(-3,3), show.legend=TRUE) +
+  xlab("Data Point") + ylab("Density") + scale_fill_manual(name="df",values=c("red","blue"),labels=factor(c(5,Inf))) +
+  theme(legend.position="right")
+```
+
+## Running: t(5) and N(0,1)
 ```{r klisetup, cache=FALSE, message=FALSE}
 source('kli.R')
 ```
@@ -43,20 +55,8 @@ head(like.ratios(likes.t5.t5, likes.t5.normal), 5)
 - A positive log-likelihood-ratio selects correct model.
 - Adding ratios gives the log-likelihood-ratio of an ensemble.
 
-## Density Curves: t(5) and N(0,1)
-```{r densitycurves}
-library(ggplot2)
-densitycurve5 <- function(x) {return(dt(x,df=5))}
-densitycurveinf <- function(x) {return(dt(x,df=Inf))}
-ggplot(NULL,aes(c(-3,3))) +
-  geom_area(stat="function",fun=densitycurve5,fill="red",alpha=I(.4),xlim = c(-3,3), show.legend=TRUE) +
-  geom_area(stat="function",fun=densitycurveinf,fill="blue",alpha=I(.4),xlim=c(-3,3), show.legend=TRUE) +
-  xlab("Data Point") + ylab("Density") + scale_fill_manual(name="df",values=c("red","blue"),labels=factor(c(5,Inf))) +
-  theme(legend.position="right")
-```
-
 ## The Bootstrap Matrix
-- Each element of the $i^{th}$ column of the bootstrap matrix contains the sum of $i$ independent log-likelihood ratios.
+- Each element of the $i^{th}$ column contains the sum of $i$ independent log-likelihood-ratios.
 - The rows are independent.
 ```{r bootstrapmatrix, echo=TRUE, cache=TRUE}
 bootstrap.matrix(likes.t5.t5, likes.t5.normal,
@@ -70,7 +70,7 @@ prophyp <- prop.choose.hyp(likes.t5.t5, likes.t5.normal,
 plot(1:250,prophyp,ylab="Proportion Correct",xlab="Sample Size", main="Based on 1000 Rows")
 abline(0.95,0)
 ```
-- Proportion is discrete (multiple of 1/#rows)---not good for regression.
+Each proportion is a multiple of 1/#rows (bad for regression).
 
 ## $5^{th}$ Percentile of Log-Likelihood
 ```{r qcplot, cache=TRUE}
@@ -100,16 +100,15 @@ abline(0,0)
 ```{r numberofsamples, echo=TRUE, cache=TRUE}
 samples.needed(likes.t5.t5, likes.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
-                  confidence.level=0.95, quantile.regression=FALSE)
+                  confidence.level=0.95)
 ```
-- The following code repeats the same experiment shown above, each time drawing a new sample for bootstrapping and computing new likelihoods:
 ```{r repssetup}
 source('reps.R')
 ```
-```{r repeated, echo=TRUE, cache=TRUE}
-repeated.estimates(reps=6, seed=1, quantile.regression=FALSE)
+```{r repeated, echo=TRUE}
+repeated.estimates(reps=6, seed=1)
 ```
-- Occasionally, the method fails and leads to nonsensical results.
+- Occasionally, the method fails and leads to nonsensical results, but it is easy to spot those estimates.
 
 ## Density of Estimates
 ```{r repeatqr, warning=FALSE, cache=TRUE}
@@ -152,6 +151,12 @@ ggplot(df, aes(x=lab,y=est)) + geom_violin() + geom_boxplot(width=0.1) +
 ## Future Work
 I am interested in models in Neuroscience where the likelihood must be approximated with Sequential Monte Carlo techniques.
 
+![](neuron.jpg)
+
+## Questions?
+
+![](BaseballPitch.jpg)
+
 ## Links & Acknowledgments
 - These slides can be found at http://jsm17.seancarver.org/talk.html
 - My code can be found at https://github.com/seancarverphd/klir.git
@@ -159,6 +164,3 @@ I am interested in models in Neuroscience where the likelihood must be approxima
 - Baseball data (needed to run our baseball code) available from Max Marchi, see: https://github.com/maxtoki/baseball_R
 - Citation: Max Marchi and Jim Albert (2013), _Analyzing Baseball With R_, CRC Press.
 
-## Questions?
-
-![](BaseballPitch.jpg)
