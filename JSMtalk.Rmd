@@ -72,7 +72,7 @@ abline(0.95,0)
 ```
 Each proportion is a multiple of 1/#rows (bad for regression).
 
-## $5^{th}$ Percentile of Log-Likelihood
+## $5^{th}$ Percentile of Log-Likelihood-Ratio
 ```{r qcplot, cache=TRUE}
 quantile <- quantile.columns(likes.t5.t5, likes.t5.normal,
                   max.samples=250, bootstrap.rows=1000, seed=5,
