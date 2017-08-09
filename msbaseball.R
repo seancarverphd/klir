@@ -14,14 +14,14 @@
 # More Readable State Names Than Used in Marchi & Albert
 # Code without final 3-out state XXX, needed for rows:
 rowcodes <- function() {
-  return(c("0|","0X|","0XX|",
-           "3|","3X|","3XX|",
-           "2|","2X|","2XX|",
-           "23|","23X|","23XX|",
-           "1|","1X|","1XX|",
-           "13|","13X|","13XX|",
-           "12|","12X|","12XX|",
-           "123|","123X|","123XX|"))
+  return(c("0:","0X:","0XX:",
+           "3:","3X:","3XX:",
+           "2:","2X:","2XX:",
+           "23:","23X:","23XX:",
+           "1:","1X:","1XX:",
+           "13:","13X:","13XX:",
+           "12:","12X:","12XX:",
+           "123:","123X:","123XX:"))
 }
 
 # Code with final 3-out state, needed for columns:
@@ -57,7 +57,7 @@ TransMatList <- function(AllTeamData) {
 
 # Get a matrix concatenating pairs of strings for states.
 # These pairs correspond to labels of possible or impossible transitions.
-# For easy reading the trailing, '|' has been removed, where applicable.
+# For easy reading the trailing, ':' has been removed, where applicable.
 TransitionNameMatrix <- function() {
   ROWS <- rowcodes()
   COLS <- colcodes()
@@ -68,7 +68,7 @@ TransitionNameMatrix <- function() {
   for (i in 1:nROWS) {
     for (j in 1:nCOLS) {
       trans1 <- paste(ROWS[i],COLS[j],sep="")
-      M[i,j] <- sub('\\|$','',trans1)
+      M[i,j] <- sub(':$','',trans1)
     }
   }
   return(M)
@@ -117,7 +117,7 @@ sim.baseball <- function(n, transition.matrix, seed=FALSE) {
   }
   half.innings <- c()
   for (k in 1:n) {
-    state <- "0|"
+    state <- "0:"
     one.half.inning <- state
     while (state != "XXX") {
       probabilities <- transition.matrix[state,]
@@ -132,9 +132,9 @@ sim.baseball <- function(n, transition.matrix, seed=FALSE) {
 
 # Get the states that a half inning passes through
 getStates <- function(one.half.inning) {
-  states <- strsplit(one.half.inning,"\\|")
+  states <- strsplit(one.half.inning,":")
   for (k in 1:length(states[[1]])-1) {
-    states[[1]][k] <- paste(states[[1]][k],"|",sep="")
+    states[[1]][k] <- paste(states[[1]][k],":",sep="")
   }
   return (states)
 }
