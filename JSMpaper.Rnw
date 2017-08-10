@@ -53,22 +53,22 @@ discernment difficult?
 
 My favorite example involves baseball.  What if you had score cards
 recording, play by play, what bases had runners, and how many outs had
-occurred, for a number of games.  Could you tell which teams were up
+occurred, for a large number of games.  Could you tell which teams were up
 at bat?  In practice, maybe not, but, in theory, if the teams playing
 are {\em models of teams}, obeying precisely defined {\em and known}
 probability laws, and if the models make different, even slightly
 different, predictions, it turns out that you can have a good chance of
 making the right decision, with enough data.  But how much data
-suffice?
+suffice to identify the teams with confidence?
 
-Once you derive a model of each team from data, you can ask yourself:
-how similar is the model of the our home team, the Baltimore Orioles,
-to the model one of their rivals, the New York Yankees.  (Baltimore
-hosted the Joint Statistical Meetings in 2017.)  How many
-Baltimore-at-bat half-innings would you have to simulate to correctly
-reject the statement that the model of the Yankees generated the
-simulations, getting this answer right at least 95\% of the time (or
-some other specified confidence level)?
+Once you derive a model of each team from data, you can ask yourself,
+for example: how similar is the model of the our home team, the
+Baltimore Orioles, to the model one of their rivals, the New York
+Yankees.  (Baltimore hosted the Joint Statistical Meetings in 2017.)
+How many Baltimore-at-bat half-innings would you have to simulate to
+correctly reject the statement that the model of the Yankees generated
+the simulations, getting this answer right at least 95\% of the time
+(or some other specified confidence level)?
 
 \section{Baseball as a Markov Chain}
 Baseball is often modeled as a Markov Chain [references].  Each
