@@ -48,40 +48,66 @@ Kullback-Leibler divergence
 When working with two or more probabilistic models, you may want to
 quantify their similarity.  Specifically, when observing simulations
 of one model, can you easily tell that the simulations do not come from
-another model; or do only subtle differences between the models make
+another model?  Or do only subtle differences between the models make
 discernment difficult?
 
 My favorite example involves baseball.  What if you had score cards
-recording, play by play, what bases had runners, and how many outs had
-occurred, for a large number of games.  Could you tell which teams were up
-at bat?  In practice, maybe not, but, in theory, if the teams playing
-are {\em models of teams}, obeying precisely defined {\em and known}
-probability laws, and if the models make different, even slightly
-different, predictions, it turns out that you can have a good chance of
-making the right decision, with enough data.  But how much data
-suffice to identify the teams with confidence?
+recording, play after play for many games, what bases had runners, and
+how many outs had occurred.  Could you tell which teams were up at
+bat?  In practice, there will be many uncontrolled factors, so if you
+require a substantial degree of certainty, you will only be able to
+distinguish between two mismatched teams.  On the other hand, in
+theory, if the teams playing are {\em models of teams}, obeying
+precisely defined and known probability laws, and if the models make
+different, even slightly different, predictions, you can make the
+choice confidently.  Indeed, you can have as high a chance as you
+want, short of being absolutely certain, of choosing the right team,
+provided you have enough data.  But how much data suffice for the
+confidence you demand?
 
-Once you derive a model of each team from data, you can ask yourself,
-for example: how similar is the model of the our home team, the
-Baltimore Orioles, to the model one of their rivals, the New York
+Once you derive a model of each team from game records, you can ask
+yourself, for example: how similar is the model of the our home team,
+the Baltimore Orioles, to the model one of their rivals, the New York
 Yankees.  (Baltimore hosted the Joint Statistical Meetings in 2017.)
 How many Baltimore-at-bat half-innings would you have to simulate to
 correctly reject the statement that the model of the Yankees generated
-the simulations, getting this answer right at least 95\% of the time
+the simulations, and get this answer right at least 95\% of the time
 (or some other specified confidence level)?
 
 \section{Baseball as a Markov Chain}
 Baseball is often modeled as a Markov Chain [references].  Each
 half-inning proceeds through a number of states recording which bases
 have runners, and how many outs have occurred. For each number of outs
-(each labeled with an X), there are 8 combinations of runners on base
-(labeled: 0, 1, 2, 3, 12, 13, 23, 123).  So 0 indicates that bases are
-empty with no outs, and 123XX indicates that bases are loaded with two
-outs, etc.  All states with three outs are combined into a single
-absorbing state: XXX.  There are 25 states total and 600 ($24 \times
-25$) conceivable transitions.  (But many of these transitions, such as
-going from two outs to one, e.g.\ 0XX:0X, are impossible, by the rules
-of baseball.)
+(each labeled with an X), there are 8 possible combinations of runners
+on base (labeled: 0, 1, 2, 3, 12, 13, 23, 123).  So 0 indicates that
+bases are empty with no outs, and 123XX indicates that bases are
+loaded with two outs, etc.  All states with three outs are combined
+into a single absorbing state: XXX, which signifies the end of the
+half-inning.  There are 25 states total and 600 ($24 \times 25$)
+conceivable transitions.  (But many of these transitions, such as
+going from bases empty, two outs, to bases empty, one out, (i.e.\
+0XX:0X) are impossible, by the rules of baseball.)
+
+We can list the 25 states in any order, as long as the absorbing
+state, XXX, comes last.  Then we can then define a $24 \times 25$
+matrix of transition probabilities $\{p_{ij}\}$.  Each entry,
+$p_{ij}$, is the probability that your next transition will be to
+state $j$, assuming you find yourself in state $i$, just prior.  There
+are no transitions from the state XXX, hence there are only 24 rows,
+not 25, in the matrix.
+
+To specify a model of a baseball team, all we need to do is specify
+the 600 transition probabilities.  For the many impossible-by-rules
+transitions, the probabilities will be zero;  the rest will be between
+0 and 1.  
+
+There are different ways of computing the transition probabilities
+from game records.  The simplest is to use the so-called maximum
+likelihood estimates (MLEs):
+$$\mbox{MLE of } p_{ij} = \frac{\mbox{number of transitions made from
+    $i$ to $j$}}{\mbox{total number made from $i$}}$$
+
+
 
 % Use BibTeX
 
