@@ -47,7 +47,7 @@ Kullback-Leibler divergence
 \section{Motivation}
 When working with two or more probabilistic models, you may want to
 quantify their similarity.  Specifically, when observing simulations
-of one model, can you easily tell the simulations do not come from
+of one model, can you easily tell that the simulations do not come from
 another model; or do only subtle differences between the models make
 discernment difficult?
 
