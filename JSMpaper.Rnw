@@ -1,0 +1,90 @@
+%&latex
+\documentclass[11pt]{asaproc}
+
+\usepackage{graphicx}
+
+%\usepackage{mathtime}
+
+%%UNCOMMENT following line if you have package
+\usepackage{times}
+
+\title{Number of Samples Needed For Model Selection With Confidence}
+
+\author{Sean G. Carver\thanks{American University, 4400 Massachusetts
+    Avenue NW, Washington DC, 20016}}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+
+\maketitle
+
+\begin{abstract}
+  A common measure used to quantify the similarity of two models is
+  the Kullback-Leibler divergence, computed from a true model to an
+  alternative model. We propose a different measure: the number of
+  samples needed to correctly reject the alternative model with a
+  given confidence level (e.g. 95\%). Our method works as follows: (1)
+  we simulate samples from the true model, (2) for each sample, we
+  compute a log-likelihood ratio (3), we bootstrap and sum the
+  log-likelihood ratios---when this sum is positive, we select the
+  true model, (4) using simple linear regression, we determine the
+  number of terms (i.e. number of samples) needed to make the desired
+  quantile (e.g. 5\%) fall at zero. We have tested this method on
+  t-distributions of different degrees of freedom and have confirmed
+  that it gives reasonably consistent results. However, we plan to
+  apply this method to Markov chains, e.g. used for sports statistics
+  like tennis, volleyball, and baseball. For these applications, it
+  may be desirable to have a measure that is easier to interpret than
+  the Kullback-Leibler divergence. How many innings are needed to
+  falsify the model of the Yankees when simulating a model of the
+  Orioles?
+\begin{keywords}
+Model selection, likelihood ratio test, Akaike information criterion,
+Kullback-Leibler divergence
+\end{keywords}
+\end{abstract}
+
+\section{Motivation}
+When working with two or more probabilistic models, you may want to
+quantify their similarity.  Specifically, when observing simulations
+of one model, can you easily tell the simulations do not come from
+another model; or do only subtle differences between the models make
+discernment difficult?
+
+My favorite example involves baseball.  What if you had score cards
+recording, play by play, what bases had runners, and how many outs had
+occurred, for a number of games.  Could you tell which teams were up
+at bat?  In practice, maybe not, but, in theory, if the teams playing
+are {\em models of teams}, obeying precisely defined {\em and known}
+probability laws, and if the models make different, even slightly
+different, predictions, it turns out that you can have a good chance of
+making the right decision, with enough data.  But how much data
+suffice?
+
+Once you derive a model of each team from data, you can ask yourself:
+how similar is the model of the our home team, the Baltimore Orioles,
+to the model one of their rivals, the New York Yankees.  (Baltimore
+hosted the Joint Statistical Meetings in 2017.)  How many
+Baltimore-at-bat half-innings would you have to simulate to correctly
+reject the statement that the model of the Yankees generated the
+simulations, getting this answer right at least 95\% of the time (or
+some other specified confidence level)?
+
+\section{Baseball as a Markov Chain}
+Baseball is often modeled as a Markov Chain [references].  Each
+half-inning proceeds through a number of states recording which bases
+have runners, and how many outs have occurred. For each number of outs
+(each labeled with an X), there are 8 combinations of runners on base
+(labeled: 0, 1, 2, 3, 12, 13, 23, 123).  So 0 indicates that bases are
+empty with no outs, and 123XX indicates that bases are loaded with two
+outs, etc.  All states with three outs are combined into a single
+absorbing state: XXX.  There are 25 states total and 600 ($24 \times
+25$) conceivable transitions.  (But many of these transitions, such as
+going from two outs to one, e.g.\ 0XX:0X, are impossible, by the rules
+of baseball.)
+
+% Use BibTeX
+
+\end{document}
+
+
