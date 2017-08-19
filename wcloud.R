@@ -17,7 +17,21 @@ transitions.from <- function(from.string) {
   runner2 <- grepl('2',from.string)
   runner3 <- grepl('3',from.string)
   outs <- str_count(from.string,'X')
-  return(list.transitions(batter, runner1, runner2, runner3, outs))
+  trans.list <- list.transitions(batter, runner1, runner2, runner3, outs)
+  whole.transitions <- c()
+  for (transition in trans.list) {
+    whole.transitions <- c(whole.transitions, paste(from.string, transition, sep=''))
+  }
+  return(whole.transitions)
+}
+
+all.transitions <- function() {
+  from.states <- rowcodes()
+  transitions <- c()
+  for (state in from.states) {
+    transitions <- c(transitions, transitions.from(state))
+  }
+  return(transitions)
 }
 
 num.equal <- function(x, y) {
