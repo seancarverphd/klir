@@ -47,9 +47,9 @@ Kullback-Leibler divergence
 \section{Motivation}
 When working with two or more probabilistic models, you may want to
 quantify their similarity.  Specifically, when observing simulations
-of one model, can you easily tell that the simulations do not come from
-another model?  Or do only subtle differences between the models make
-discernment difficult?
+of one model, can you easily tell that the simulations do not come
+from another model?  Or do only subtle differences between the models
+make this discernment difficult?
 
 My favorite example involves baseball.  What if you had score cards
 recording, play after play for many games, what bases had runners, and
@@ -88,7 +88,9 @@ half-inning.  There exist a total of 25 states and a total of 600
 (equaling $24 \times 25$) conceivable transitions.  We note that many
 of these transitions remain impossible, by the rules of baseball, such
 as, for example, going from bases empty with two outs, to bases empty
-with one out, i.e.\ 0XX:0X.
+with one out, i.e.\ 0XX:0X.  Using a recursive algorithm savvy to the
+rules, I counted 296 allowable transitions between states, and 304
+illegal ones.
 
 We can list the 25 states in any order, but we prefer to put the
 absorbing state, XXX, last.  Then we can then define a $24 \times 25$
@@ -109,7 +111,9 @@ it could have occurred, within the rules of the game.  Had a team
 undergone this transition, the batter would have advanced only to
 first base, while the runner on first would have scored---clearly an
 unusual scenario, but not impossible, as demonstrated by the fact that
-both 1:1 and 1XX:1XX did occur in 2011 Major League play.
+both 1:1 and 1XX:1XX did occur in 2011 Major League play.  There were
+23 more allowable transitions that never occurred during the 2011
+Major Leagues.
 
 The last column of the matrix, with entries $p_{i:XXX}$, consists of
 transitions from all states to the end of the inning---state XXX.  For
@@ -125,24 +129,28 @@ otherwise).  They simply do not exist in the transition probability
 matrix, which has only 24 rows, not 25.
 
 To specify a model of a baseball team, we need to specify the 600
-transition probabilities.  For many of these, we have no choice---they
-must remain zero, if their corresponding transitions cannot happen by
-the rules.  The rest of the probabilities will fall between 0 and 1.
-In 2011, Major League teams underwent 272 distinct transitions, but,
-as mentioned above, this count does not fully capture all legal
-transitions.
+transition probabilities.  At least 304 of these will be zero, by the
+rules.  The rest of the probabilities will fall between 0 and 1.  But
+all transitions from a given state (but not XXX) add to 1, because the
+game has to go somewhere from each state, including possibly back to
+the same state.  Because there are 24 of these transient states, and
+each has this single constraint, our models of baseball teams live in
+a 272 dimensional parameter space.  (Each constraint reduces the
+dimension by 1.)
 
-To determine the team models, the simplest method uses the so-called
-maximum likelihood estimates (MLEs):
+To determine the values of these parameters for each team, the
+simplest method uses the so-called maximum likelihood estimates
+(MLEs):
 $$\mbox{MLE of } p_{ij} = \frac{\mbox{number of transitions made from
     $i$ to $j$}}{\mbox{total number of transitions made from $i$}}$$
 In calculating the MLEs, use game records for a particular team, if
-you want a model of that team.  My models come only from the game
-records of each team batting at home.  I made this choice to make the
+you want a model of that team.  My team models come only from the game
+records of the team batting at home.  I made this choice to make the
 models as different as possible.  Even in the Major Leagues, ballparks
 differ substantially, and the home field can have a significant effect
 on the play.  The park effects add distinctiveness to the models that
-also comes from the differences in the team at bat.
+also comes from the differences in the team at bat.  Fixing the home
+field reduces variability in the data from game to game.
 
 Unfortunately, baseball models based on MLEs have significant
 drawbacks, especially when we consider the models together.  Though,
@@ -178,6 +186,76 @@ it should not be deemed impossible by a zero probability, even if it
 never occurred for a team one year.  There exist principled ways of
 making this adjustment, discussed in [Marchi \& Albert, 2013], but
 they are beyond the scope of the present paper.
+
+\section{Deciding Between Models}
+Computing the number of samples needed for model selection with
+confidence requires two things: (1) you must be able to simulate the
+true model to generate the samples, and (2) you must be able to
+calculate the likelihood of each of these sample, for both the true
+model and the alternative model.  In baseball the model was a Markov
+chain.  Each sample was a half-inning of the true team model batting
+according to its transition probability matrix.  Simulating a
+half-inning involved starting with the bases empty, no outs (the 0
+state) then successively using the transition probabilities to ``throw
+the dice'' to see the succession of states until reaching the XXX
+state.  Each of these transitions has a probability associated with
+it.  Since no player consistently bats over 0.500, most plate
+appearances will lead to an out.  Teams most common inning for all
+teams is 0:0X:0XX:XXX.  But sometimes teams get lucky and the dice
+show more unusual things.  The likelihood of a baseball inning is the
+product of its transition probabilities.  We are interested in the log
+of this number.
+
+For a simpler model, with a one-dimensional parameter space (instead
+of 272 dimensions) we use the student t-distribution.  Its single
+parameter is the number of degrees of freedom.  Many software packages
+allow specifying an infinite number of degrees which, in turn,
+specifies the standard normal distribution.  Our true model will be a
+t-distribution with 5 degrees of freedom, t(5), and the alternative
+model we wish to reject with confidence is the normal distribution,
+N(0,1).
+
+Analogous to a single half-inning in baseball, such as 0:0X:0XX:XXX,
+each sample of the t-distribution is a single number on the real line,
+either positive, zero, or negative, such as -0.143134.  Once we get
+many such samples, the next step is to compute the likelihood of each
+sample.  In baseball, the most likely sample was 0:0X:0XX:XXX, but
+there were infinitely many with lower, sometimes much lower
+likelihoods.  Likewise, for the t-distributions the most likely sample
+is 0.  When likelihood is plotted, 0 is the top of a bell curve, and
+away from 0, the likelihood drops off with a different shape,
+depending on the number of degrees of freedom.  The lower the number
+of degrees of freedom, the lower the likelihood at the most likely
+value, and the higher the likelihood in the tails.
+
+If you are deciding between t(5) and N(0,1), using one sample, you
+make the choice based on which model has a higher likelihood at the
+sample.  If the sample is near the center, you pick N(0,1), and if the
+sample is in the tails you pick t(5).  But, even for t(5), most
+samples will fall near the center, so if the true model is t(5), you
+get the answer wrong, most of the time.  Only when you take many
+samples, and start to fill in the histogram, with lots of samples in
+the tails, are you likely to reject N(0,1).
+
+The same phenomenon occurs in baseball modeling.  As mentioned above,
+the most likely inning for all teams is 0:0X:0XX:XXX.  But for teams
+that do not bat as well, 0:0X:0XX:XXX is even more likely than for
+teams that have better offenses.  What this means is that if the true
+team has better hitters, and you only use one inning to choose between
+teams, you will likely get the answer wrong, most of the time.  It is
+only when you get a long collection of innings, and start to see the
+distribution of rare innings fill out, that you will have a better
+chance of making the right choice.
+
+How do you make the selection using more than one sample.  The
+likelihood of each sample the probability (or, in the case of the
+t-distribution, the probability density) of seeing the sample.  We
+assume that samples are independent, so that their probabilites (or
+probability densities) multiply.  The product of these small numbers
+can be too small for a computer's floating-point precision, so we use
+log-likelihood instead of log.  Log-likelihoods add.
+
+Now we are really interested in the relative log-likelihood.
 
 % Use BibTeX
 
