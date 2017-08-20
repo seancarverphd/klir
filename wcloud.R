@@ -4,11 +4,18 @@ library(wordcloud)
 library(RColorBrewer)
 library(stringr)
 
+innings <- unique(sim.baseball(10000, ALL, seed=1))
+freq.unrounded <- exp(likes.baseball(innings, ALL))*100
+freq <- round(exp(likes.baseball(innings, ALL))*100)
+
+#wordcloud(innings, freq, min.freq=1)
+
+#innings <- unique(sim.baseball(2500, BAL, seed=1))
+#freq <- round(exp(likes.baseball(innings, BAL))*2500)
+#wordcloud(innings,freq,random.order=TRUE,colors='black')
+
 #innings <- unique(sim.baseball(2600, WAS, seed=1))
 #freq <- round(exp(likes.baseball(innings,WAS))*2600)
-innings <- unique(sim.baseball(2500, BAL, seed=1))
-freq <- round(exp(likes.baseball(innings, BAL))*2500)
-wordcloud(innings,freq,random.order=TRUE,colors='black')
 #wordcloud(innings,freq,random.order=TRUE,colors=brewer.pal(8,'RdBu'))
 
 transitions.from <- function(from.string) {

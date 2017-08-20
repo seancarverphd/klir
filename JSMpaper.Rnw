@@ -190,72 +190,251 @@ they are beyond the scope of the present paper.
 \section{Deciding Between Models}
 Computing the number of samples needed for model selection with
 confidence requires two things: (1) you must be able to simulate the
-true model to generate the samples, and (2) you must be able to
-calculate the likelihood of each of these sample, for both the true
-model and the alternative model.  In baseball the model was a Markov
-chain.  Each sample was a half-inning of the true team model batting
-according to its transition probability matrix.  Simulating a
-half-inning involved starting with the bases empty, no outs (the 0
-state) then successively using the transition probabilities to ``throw
-the dice'' to see the succession of states until reaching the XXX
-state.  Each of these transitions has a probability associated with
-it.  Since no player consistently bats over 0.500, most plate
-appearances will lead to an out.  Teams most common inning for all
-teams is 0:0X:0XX:XXX.  But sometimes teams get lucky and the dice
-show more unusual things.  The likelihood of a baseball inning is the
-product of its transition probabilities.  We are interested in the log
-of this number.
+true model to generate samples, and (2) you must be able to calculate
+the likelihood of each of these samples, for both the true model and
+for the alternative, misspecified, model.  The relative values of
+these likelihoods determine which model you deem as correct.
 
-For a simpler model, with a one-dimensional parameter space (instead
-of 272 dimensions) we use the student t-distribution.  Its single
-parameter is the number of degrees of freedom.  Many software packages
-allow specifying an infinite number of degrees which, in turn,
-specifies the standard normal distribution.  Our true model will be a
-t-distribution with 5 degrees of freedom, t(5), and the alternative
-model we wish to reject with confidence is the normal distribution,
-N(0,1).
+Our baseball models implement Markov chains.  Each sample consists of
+the game records of a half-inning of the plays for the team at bat.
+Simulating a half-inning involved starting with the bases empty, no
+outs (the 0 state) then successively using the transition
+probabilities to ``throw the dice'' to see the succession of states,
+until reaching the end of the inning, the XXX state.  Each transition
+between states has a probability associated with it.  It is well know
+that in the history of Major League play, no player has ever
+consistently batted over .500, meaning that most plate appearances
+have led to an out.  From this fact, we can guess that, for all teams
+in the Major Leagues, throughout history, the most common inning is
+the one where there are three outs in a row: 0:0X:0XX:XXX.  Indeed,
+simulations, with the transition probabilities for the combined 2011
+teams, predict 0:0X:0XX:XXX for 31.5\% of the half-innings.
+Individual teams will have a different percentages, depending on the
+skill of their batters.  True, the most common outcome occurs for
+considerably less than half of the half-innings, but the next most
+common half-inning, 0:X:0XX:1XX:XXX, occurs only 7.6\% of the time.
+
+According to the 2011 data, there are only 9 distinct half-innings
+which have probabilities greater than 0.01 (predicted to occur more
+than 1\% of the time).  The rest we can call {\em rare} innings.  But
+if we sum the probabilities for the non-rare innings we only get
+0.555, which means that 44.5\% of the time, we predict that the inning
+will be rare.  As a group rare innings are not particularly rare, but
+each one individually is quite rare, occurring than once in 100
+innings.  Perhaps this phenomenon is one of the reasons why many
+people find baseball fun to watch!
+
+Please realize that there are infinitely many possible innings, as
+long as the referee allows the score to increase without bound, and
+the team at bat manages to never suffer three outs.  The probabilities
+of all of these innings sum exactly to 1 in a convergent series, so
+the probabilities of individual innings must drop off dramatically as
+the score increases...and indeed they do.  The numbers get very small,
+and very small numbers occur frequently, so we work with the logs of
+these probabilities.
+
+Baseball is complicated.  For a simpler model, with a one-dimensional
+parameter space (instead of 272 dimensions) we use the student
+t-distribution.  Its single parameter is the number of degrees of
+freedom for the distribution.  Many software packages allow specifying
+an infinite number of degrees which, in turn, specifies a particular
+distribution known as the standard Normal distribution.  Our true
+model will be a t-distribution with 5 degrees of freedom, t(5), and
+the alternative model we wish to reject with confidence is the
+standard Normal distribution, $\mbox{t}(\infty)$, or N(0,1).
 
 Analogous to a single half-inning in baseball, such as 0:0X:0XX:XXX,
 each sample of the t-distribution is a single number on the real line,
 either positive, zero, or negative, such as -0.143134.  Once we get
 many such samples, the next step is to compute the likelihood of each
-sample.  In baseball, the most likely sample was 0:0X:0XX:XXX, but
-there were infinitely many with lower, sometimes much lower
-likelihoods.  Likewise, for the t-distributions the most likely sample
-is 0.  When likelihood is plotted, 0 is the top of a bell curve, and
-away from 0, the likelihood drops off with a different shape,
-depending on the number of degrees of freedom.  The lower the number
-of degrees of freedom, the lower the likelihood at the most likely
-value, and the higher the likelihood in the tails.
+sample.  In baseball, the most likely sample is the one just
+mentioned, but there were infinitely many others, with lower, sometimes
+much lower, likelihoods.  
+
+For baseball, half-innings are discrete.  For the t-distribution,
+samples occur on a continuum---in one dimension.  As a consequence,
+you can graph the likelihood function, better known as the probability
+density function, with the sample on the horizontal axis, and the
+likelihood (or probability density) on the vertical axis.  We use
+likelihood and probability density interchangeably, but the correct
+distinction uses {\em likelihood} when parameter values vary, with
+fixed sample, and {\em probability density}, when the sample varies
+with fixed parameter values.  Here we vary only parameter values
+discretely between the two models (e.g.\ we vary the single number of
+degrees of freedom, or the 600 transition probabilities, with
+constraints).
+
+For all t-distributions, including N(0,1), the most likely sample is
+0.  When likelihood is plotted, 0 will appear at the top of a bell
+curve, and away from 0, and the likelihood drops off, with a shape
+that depends on the number of degrees of freedom.  The smaller the
+number of degrees of freedom, the lower the likelihood in the center,
+near 0, and the higher the likelihood in the tails.  Just like the
+probabilities of the different innings summed to 1 in an infinite,
+convergent series, the probability density integrates to 1 over the
+whole range of possible samples (all real numbers).  In other words,
+the area under the bell curve is 1, when extended out infinitely far
+into the tails.  Just like the probabilities of baseball innings
+dropped off as the score increases, the probability densities of
+t-samples drops off, as the sample gets farther into the tails, away
+from 0.  The key point is that this drop off occurs faster for N(0,1)
+than for t(5), just as the drop off for high scores occurs faster for
+worse baseball teams, than for better teams.
 
 If you are deciding between t(5) and N(0,1), using one sample, you
 make the choice based on which model has a higher likelihood at the
 sample.  If the sample is near the center, you pick N(0,1), and if the
-sample is in the tails you pick t(5).  But, even for t(5), most
+sample is in one of the tails you pick t(5).  But, even for t(5), most
 samples will fall near the center, so if the true model is t(5), you
 get the answer wrong, most of the time.  Only when you take many
-samples, and start to fill in the histogram, with lots of samples in
-the tails, are you likely to reject N(0,1).
+samples, and start to fill in a dense histogram of the distribution,
+with lots of samples in the tails, are you likely to reject N(0,1), if
+that is indeed the correct choice.
 
-The same phenomenon occurs in baseball modeling.  As mentioned above,
-the most likely inning for all teams is 0:0X:0XX:XXX.  But for teams
-that do not bat as well, 0:0X:0XX:XXX is even more likely than for
-teams that have better offenses.  What this means is that if the true
-team has better hitters, and you only use one inning to choose between
-teams, you will likely get the answer wrong, most of the time.  It is
-only when you get a long collection of innings, and start to see the
-distribution of rare innings fill out, that you will have a better
-chance of making the right choice.
+How do you make the selection using more than one sample?  All you
+need is the likelihoods of each sample (from the true model) for both
+the true model and the alternative model.  In baseball, the likelihood
+is the computed probability of the simulated half-inning, and for the
+t-distributions it is the probability density of the sample.  However
+in both cases, we want the log-likelihood.
 
-How do you make the selection using more than one sample.  The
-likelihood of each sample the probability (or, in the case of the
-t-distribution, the probability density) of seeing the sample.  We
-assume that samples are independent, so that their probabilites (or
-probability densities) multiply.  The product of these small numbers
-can be too small for a computer's floating-point precision, so we use
-log-likelihood instead of log.  Log-likelihoods add.
+However, we are interested in the relative likelihoods between the two
+models.  We select the model with the greatest likelihood.  This
+selection goes by the name {\em likelihood ratio test} and in our
+situations, it is equivalent making the decision based on the {\em
+  Akaike information criterion} or AIC.  Why are the two equivalent?
+Unlike for the likelihood ratio test, the formula for the AIC contains
+a term that adjusts for bias that inevitably occurs when the modeler
+fits the parameters with the same set of data used to make the
+selection.  Our models are fit in advance, and we make our selection
+with different data---simulated data---after we fix the parameters.
+In our cases, the correction term in the formula for AIC is zero, and
+the AIC and the likelihood ratio test, are one and the same.
 
-Now we are really interested in the relative log-likelihood.
+As suggested by the name {\em likelihood ratio test} we use ratios,
+specifically, before taking logs, the quantity of interest is the
+likelihood of the true model, over the likelihood of the alternative
+model, both at the sample simulated by the true model.  If this
+quantity is greater that 1, we choose the true model; otherwise we
+choose the alternative model.
+
+When we take logs, the quantity of interest becomes the difference in
+log-likelihoods---remember, the log of a ratio is the log of the
+numerator minus the log of the denominator.  When this quantity is
+greater than zero (i.e.\ $(\log(1)$), we choose the true model;
+otherwise, we choose we choose the alternative model.
+
+What if we have more than one sample?  We assume that samples are
+independent, so that their probabilites (or probability densities)
+multiply.  Now we take the log of the product.  Remember, the log of a
+product is the sum of the logs of the factors.  So if, for each
+sample, we compute the log-likelihood ratio, we simply need to add the
+log-likelihood-ratios, and when this sum is positive, we select the
+true model; otherwise we select the alternative model.
+
+The mean of these same log-likelihood ratios is an unbiased
+Monte-Carlo estimate of the Kullback-Leibler divergence.  The true
+value of the Kullback-Leibler divergence is the expected value of each
+log-likelihood ratio.  While Monte-Carlo estimates of the
+Kullback-Leibler divergence can be both negative or positive, the true
+value is always nonnegative---and positive as long as the models make
+different predictions---this result is known as the {\em Gibbs
+  inequality}.  It follows from the Gibbs inequality and the central
+limit theorem, that we {\em will} select the true model with enough
+sample, i.e.\ with a confidence level that approaches 1 as the number
+of samples increases, as long as the models make different
+predictions.  Baseball models will make different predictions as long
+as their transition probability matrices are not exactly the same.
+
+\section{How many samples are needed}
+
+I use a brute force Monte Carlo technique.  Specifically I compute a
+matrix of sums of log-likelihood ratios.  The first column contains
+single log-likelihood ratios; the second contains sums of two; the
+third contains sums of three; and so on.  The entries in the matrix
+are of course random, and across rows the entries are derived from
+independent samples.  For large enough matrices, these computation
+requirements can be prohibitive, so to economize, I compute a smaller
+number of samples and their log-likelihood ratios in advance, and use
+a bootstrap (random resampling with replacement) to fill in the
+matrix.  This procedure introduces a bias, but a bias that is
+controllable by setting the number of samples.
+
+Once I compute the matrix, I can compute the proportion (of sums of
+log-likelihood ratios) in each column which are positive.  Each
+positive entry in the matrix indicates a correct selection of the true
+model, and the column number of the matrix indicates the number of
+samples used in the selection.  So the column number for which this
+proportion crosses the chosen confidence level should be our answer.
+Unfortunately, this crossing is not well defined because the
+proportion varies randomly, and not in a consistent way across
+columns.  As a result, there is a region, which I call the region of
+interest where the crossing occurs many times.
+
+My first solution was to zoom in on the region of interest and perform
+a linear regression on the proportion to pinpoint an estimate where
+the proportion crossed the confidence level.  But the proportion is a
+multiple of the number of rows in the matrix and this discretization
+is not good for regression.
+
+So instead, I compute quantiles.  For example, for 95\% confidence,
+the proportion crosses 0.95, and the same place where the $5^{th}$
+percentile crosses 0.  In each case, 95\% of the sums of
+log-likelihood ratios are positive.  The quantiles are not discrete,
+and regression performs better.
+
+I have tried both simple linear regression (on the quantiles, with the
+R command lm()) and quantile regression (directly on the entries in
+the matrix, with the R command quantreg::rq(), using the default
+choices).  A careful reading of the documentation reveals differences
+in between these two procedures, however, there was not a substantial
+difference in the quality of the estimates.  That said, computing the
+region of interest required the result of an intermediate step (the
+quantiles) which was not immediately available in rq().  Therefore I
+prefer to use lm().  Having to compute quantiles twice, rq() takes
+somewhat longer.
+
+\section{Results}
+I calculate that it takes $128 \pm 1$ samples from the t-distribution,
+with 5 degrees of freedom, to reject, with 95\% confidence, the
+statement that these samples came from the standard normal
+distribution.  On the other hand, I calculate that it takes $31 \pm 1$
+half-innings simulated from the MLE model derived from the 2011
+Baltimore Orioles, batting at home, to reject, with 95\% confidence,
+the statment that these half-innings were sampled from the 2011 New
+York Yankees MLE model.  One reason why baseball teams are easier to
+distinguish than t-distributions, has to do with the above mentioned
+properties of the MLE.  Specifically, in a simulation of 10,000 of the
+Baltimore-at-bat half-innings, it was discovered that around 2\% had
+not occurred for the Yankees while batting in their New York home
+stadium in 2011.  If one of these innings occurs in a set of Baltimore
+at bat samples, the selection is immediately made for the true model.
+At least one such half-inning is expected in approximately 44.5\% of
+sequences of 31 half-innings, making the selection problem
+substantially easier.
+
+\section{Conclusion}
+
+The number of samples needed for model selection with confidence
+offers an alternative to the Kullback-Leibler divergence to quantify
+the similarity of two models.  This alternative may be easier to interpret
+for those untrained in model selection, and unfamiliar with the
+Kullback-Leibler divergence.  However it is discrete measure, unlike
+the Kullback-Leibler divergence, and it is substantially harder to
+compute.
+
+\section{Acknowledgements}
+
+Rebeca Berger helped prepared the data for processing and adapted the
+code from the GitHub companion to the book {\em Analyzing Baseball
+  Data with R} [Citation].  Berger's adaptation computes each team's
+MLE transition probability matrix from the 2011 data of the team
+batting at home.
+
+Our custom code is available at https://github.com/seancarverphd/klir.
+The original code is available at
+https://github.com/maxtoki/baseball\_R, together with the 2011 data.
+
 
 % Use BibTeX
 
