@@ -144,10 +144,10 @@ below, will be made in the context of this rather unfortunate behavior
 of the MLEs for baseball.
 
 \section{Deciding Between Models}
-Baseball presents one example; below we introduce another.  Our
-calculations work for with any type of model, provided (1) you can
-simulate the true model to generate samples, and (2) you can calculate
-the likelihood of each sample, both for the true model, and for any
+Baseball presents one example; below, we introduce another.  Our
+calculations work for any type of model, provided (1) you can simulate
+the true model to generate samples, and (2) you can calculate the
+likelihood of each sample, both for the true model, and for any
 alternative model under consideration.  The relative values of these
 likelihoods determine which model you deem as correct.  Of course,
 with these calculations, you know in advance which model is correct,
@@ -155,12 +155,12 @@ but knowing this fact allows you to calculate how many samples you
 would have needed to be confident, if you did not already know the
 answer.
 
-Each sample from one of our baseball models consists of the game
-records of a half-inning of the plays for the team at bat.  A
-simulation starts with bases empty and no outs (the 0 state) then
-successively applies the transition probabilities to ``throw the
-dice,'' to see the succession of states, until reaching the end of the
-inning (the XXX state).
+Each baseball sample consists of the play-by-play records from a
+half-inning for the model team at bat.  To create this sample with a
+simulation, start with bases empty and no outs (the 0 state) then
+successively apply the appropriate transition probabilities to ``throw
+the dice,'' to see the succession of states, until reaching the end of
+the inning (the XXX state).
 
 It is well known that in the history of Major League play, no player
 has ever consistently batted over .500, meaning that most plate
@@ -168,27 +168,27 @@ appearances, for all batters, have led to an out.  From this fact, we
 can guess that, throughout Major League history, the most common
 half-inning has been the one in which there are three outs in a row:
 0:0X:0XX:XXX.  Indeed, simulations with the transition probabilities
-(for all 2011 Major League teams) predict 0:0X:0XX:XXX for 31.5\% of
-the half-innings.  Individual teams will have a different percentages
-for this occurrence, higher or lower, depending on the skill of their
-batters.  True, this most common outcome does not represent a
-majority of all half-innings, but the next most common half-inning,
-0:X:0XX:1XX:XXX, occurs only 7.6\% of the time.
+(combined for all 2011 Major League teams, home and away) predict
+0:0X:0XX:XXX for 31.5\% of the half-innings.  Individual teams will
+have different percentages for this occurrence, higher or lower,
+depending on the skill of their batters.  True, this most common
+outcome does not represent a majority of all half-innings, but the
+next most common half-inning, 0:X:0XX:1XX:XXX, occurs only 7.6\% of
+the time.
 
 According to the 2011 data, there are only 9 distinct half-innings
 which have probabilities greater than 0.01 (predicted to occur more
 than 1\% of the time).  The rest I call {\em rare innings}.  But if we
 sum the probabilities for the non-rare innings we only get 0.555,
-which means that 44.5\% of the time, we predict a rare inning.  As a
+which means that we predict a rare inning 44.5\% of the time.  As a
 group, rare innings are not particularly rare, but each one occurs
-less than once in 100 half-innings.  How is this result consistent
-with reality?  Realize that there are infinitely many possible
-half-innings, provided the team at bat manages to avoid three outs,
-and the referee does not call the game as the score gets increasingly
-lopsided.  The probabilities of all of these possible innings sum
-exactly to 1 in an infinite convergent series.  The fact that
-individual rare inning have such low probabilities is made up for by
-the fact that there are so many of these rare innings.
+less than once in 100 half-innings.  How is this statement consistent
+with reality?  Realize that, with no cap on the score, there are
+infinitely many possible half-innings; their probabilities sum to
+exactly 1 in an infinite convergent series.  Necessarily, these
+probabilities tail off to keep the sum finite, but still, the fact
+that individual half-innings have such low probabilities is made up
+for by the fact that there are so many of them.
 
 For a second example, we use the student t-distribution.  Instead of
 600 transition probabilities, t-distributions have a single parameter:
@@ -203,12 +203,12 @@ in baseball with its discrete half-innings, for the t-distributions,
 the samples occur on a continuum---in one dimension.  As with
 baseball, the next step grasps the likelihoods of the different
 possibilities.  For the t-distributions, the simplicity of the sample
-space allows you to make graph (known as the probability density
-function).  Typically, the sample goes on the horizontal axis, and the
-likelihood (or probability density) goes on the vertical axis.  For
-N(0,1), the graph is just the familiar {\em bell curve}; for the other
-t-distributions, the graph appears as a nearly indistinguishable, but
-slightly warped, bell, as described below.
+space allows you to plot the likelihood (on the vertical axis) against
+the sample (on the horizontal axis) which shows the graph of the
+so-called probability density function.  The graph for N(0,1) is just
+the familiar {\em bell curve}; the graph of other distributions
+appears nearly indistinguishable from the one for N(0,1), but it is a
+slightly warped bell, described below.
 
 For all t-distributions, the most likely sample is 0, which appears as
 the peak of the bell.  Away from 0 the likelihood drops off into
@@ -240,14 +240,16 @@ will tend to pick a better team if the half-inning's score is higher,
 and a worse team if the score is lower, although the judgement based
 on likelihood is often more subtle than the one just described.
 
-In many cases, based on one sample, your answer will be wrong, most of
+In many cases, based on one sample, the answer will be wrong, most of
 the time.  Indeed for all t-distributions, including t(5), most
 samples are near the center (top of the bell), so t(5) will be
 rejected in favor of N(0,1) with one sample, most of the time, even if
 it is the true model.  Likewise good teams do often get low scoring
-half-innings, which can deem them less likely than worse teams.  It
-takes many samples including rarities in the tails, to fill in the
-histogram and make the correct choice.
+half-innings.  If this common occurence happens when choosing between
+teams with a single half-inning, a good team may be deemed less likely
+than a worse team to have produced their own data.  It takes many
+samples, including rarities in the tails, to fill in the histogram and
+make the correct choice.
 
 How do we compute likelihood?  For t-distributions, it is the height
 of the (warped) bell curve at the sample, given by formulas (for the
