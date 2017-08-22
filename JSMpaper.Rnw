@@ -206,7 +206,7 @@ As with baseball, the next step grasps the likelihoods of the
 different possibilities.  For the t-distributions, the simplicity of
 the sample space allows you to plot the likelihood (on the vertical
 axis) against the sample (on the horizontal axis) which shows the
-graph of the so-called probability density function.  The graph for
+graph of the so-called probability density function.  This graph for
 N(0,1) is just the familiar {\em bell curve}; the graphs for the other
 t-distributions appear nearly indistinguishable from the one for
 N(0,1), but they are slightly warped bells, as described below.
@@ -280,29 +280,29 @@ that the two methods agree.
 
 As suggested by the name {\em likelihood ratio test}, we use ratios.
 After generating samples from the true model, we select models based
-on the quotient of the product of their corresponding likelihoods for
-true model, over the product of their corresponding likelihoods for
-the alternative model (both using the same true-model samples).
-If this quantity is greater that 1, we choose the true model;
-otherwise we choose the alternative model.  After taking logs, these
-quotients and products simplify to the sum of the log-likelihood
-ratios of the single samples, under consideration.  When this whole
-sum is greater than zero (i.e.\ $\log(1)$), we choose the true model;
-otherwise, we choose we choose the alternative model.
+on the quotient of the product of true-model likelihoods, over the
+product of alternative-model likelihoods (both using the same
+true-model samples).  If this quantity is greater that 1, we choose
+the true model; otherwise we choose the alternative model.  After
+taking logs, these quotients and products simplify to the sum of the
+log-likelihood ratios of the single samples, under consideration.
+When this whole sum is greater than zero (i.e.\ $\log(1)$), we choose
+the true model; otherwise, we choose we choose the alternative model.
 
-The mean of these log-likelihood ratios is an unbiased estimate of the
-so-called {\em Kullback-Leibler divergence} (defined as the expected
-value of this same quantity) \cite{burnham2002}.  While such a Monte
-Carlo estimate can be either positive, negative, or zero, the true
-value of the Kullback-Leiber divergence always remains
-nonnegative---and positive as long as the models make different
-predictions (known together as the {\em Gibbs inequality}).  From this
-result, the central limit theorem, and a finite variance assumption,
-we can be sure we will, with any level of confidence short of
-certainty, select the true model, with enough samples, provided the
-two models make different predictions (e.g.\ for two baseball models,
-at least one transition probability must be different).  In other
-words, our test is {\em consistent} \cite{burnham2002}.
+The mean of the single-sample log-likelihood ratios is an unbiased
+estimate of the so-called {\em Kullback-Leibler divergence} from the
+true model to the alternative model (defined as the expected value of
+this same quantity) \cite{burnham2002}.  While such a Monte Carlo
+estimate can be either positive, negative, or zero, the actual value of
+the Kullback-Leiber divergence always remains nonnegative---and
+positive as long as the models make different predictions (known
+together as the {\em Gibbs inequality}).  From this result, the
+central limit theorem, and a finite variance assumption, we can be
+sure we will, with any level of confidence short of certainty, select
+the true model, with enough samples, provided the two models make
+different predictions (e.g.\ for two baseball models, at least one
+transition probability must be different).  In other words, our test
+is {\em consistent} \cite{burnham2002}.
 
 \section{Computing The Samples Needed}
 
