@@ -4,6 +4,7 @@ JSMpaper.pdf: JSMpaper.Rnw
 	Rscript -e 'library(knitr);Sweave2knitr("JSMpaper.Rnw")'
 	Rscript -e 'library(knitr);knit("JSMpaper-knitr.Rnw")'
 	pdflatex JSMpaper-knitr.tex
+	bibtex JSMpaper-knitr
 	pdflatex JSMpaper-knitr.tex
 	pdflatex JSMpaper-knitr.tex
 	dvipdf JSMpaper-knitr.dvi JSMpaper.pdf
