@@ -55,50 +55,50 @@ My favorite example involves baseball.  What if you had score cards
 recording, play after play for many games, what bases had runners, and
 how many outs had occurred.  Could you tell which teams were up at
 bat?  In practice, there will be many uncontrolled factors, so if you
-require a substantial degree of certainty, you will only be able to
+require a high degree of certainty, you will only be able to
 distinguish between two teams if they are substantially mismatched.
 On the other hand, in theory, if the teams playing are {\em models of
   teams}, obeying precisely defined and known probability laws, and if
 the models make different, even slightly different, predictions, you
-can make the choice confidently.  Indeed, you can have as high a
+can make the choice confidently.  Indeed, you can have as great a
 chance as you want, short of being absolutely certain, of choosing the
-right team, provided you have enough data [Burnham \& Andersen].  But
-how much data suffice for the confidence you demand?
+right team, provided you have enough data \cite{burnham2002}.  But how
+much data suffice for the confidence you demand?
 
 Once you derive a model of each team from game records, you can ask
 yourself, for example: how similar is the model of the our home team,
 the Baltimore Orioles, to the model one of their rivals, the New York
 Yankees.  (Baltimore hosted the Joint Statistical Meetings in 2017.)
-How many Baltimore-at-bat half-innings would you have to simulate to
+How many Baltimore-at-bat half-innings would you need to simulate to
 correctly reject the statement that the model of the Yankees generated
 the simulations, and get this answer right at least 95\% of the time
 (or some other specified confidence level)?
 
 \section{Baseball as a Markov Chain}
-Baseball is often modeled as a Markov chain [Marchi \& Albert, Albert,
-Kemeny \& Snell], where each half-inning proceeds through a number of
-states.  The states record which bases have runners, and how many outs
-have occurred.  There are 8 possible combinations of runners on base
-(labeled: 0, 1, 2, 3, 12, 13, 23, 123), and 4 possible numbers of outs
-(labeled: {\em blank}, X, XX, XXX).  Specifically, the state label 0
-indicates empty bases with no outs, whereas the state label 123XX
-indicates loaded bases with two outs, etc.  All states with three outs
-are combined into a single absorbing state: XXX, which signifies the
-end of the half-inning.  There exist a total of 25 states and a total
-of 600 (equaling $24 \times 25$) conceivable transitions (no
-transitions happen from the XXX state).  We note that many of these
-transitions remain impossible, by the rules of baseball, such as, for
-example, going from bases empty with two outs, to bases empty with one
-out, i.e.\ 0XX:0X.  Using a recursive algorithm savvy to the rules, I
-counted 296 allowable transitions between states, and 304 illegal
-ones.  Of the 296 allowable transitions, only 272 occurred at least
-once in the 2011 Major League season---24 never occurred.  For
-example, in 2011 no team underwent the transition 1X:1X even though it
-could have occurred, within the rules of the game.  Had a team
-undergone this transition, the batter would have advanced only to
-first base, while the runner on first would have scored---clearly an
-unusual scenario, but not impossible: both 1:1 and 1XX:1XX did occur
-in 2011 Major League play.
+Baseball is often modeled as a Markov chain
+\cite{marchi2013,albert2003,kemeny1976}, where each half-inning
+proceeds through a number of states.  The states record which bases
+have runners, and how many outs have occurred.  There are 8 possible
+combinations of runners on base (labeled: 0, 1, 2, 3, 12, 13, 23,
+123), and 4 possible numbers of outs (labeled: {\em blank}, X, XX,
+XXX).  Specifically, the state label 0 indicates empty bases with no
+outs, whereas the state label 123XX indicates loaded bases with two
+outs, etc.  All states with three outs are combined into a single
+absorbing state: XXX, which signifies the end of the half-inning.
+There exist a total of 25 states and a total of 600 (equaling
+$24 \times 25$) conceivable transitions (no transitions happen from
+the XXX state).  We note that many of these transitions remain
+impossible, by the rules of baseball, such as, for example, going from
+bases empty with two outs, to bases empty with one out, i.e.\ 0XX:0X.
+Using a recursive algorithm savvy to the rules, I counted 296
+allowable transitions between states, and 304 illegal ones.  Of the
+296 allowable transitions, only 272 occurred at least once in the 2011
+Major League season---24 never occurred.  For example, in 2011 no team
+underwent the transition 1X:1X even though it could have occurred,
+within the rules of the game.  Had a team undergone this transition,
+the batter would have advanced only to first base, while the runner on
+first would have scored---clearly an unusual scenario, but not
+impossible: both 1:1 and 1XX:1XX did occur in 2011 Major League play.
 
 We can then define a $24 \times 25$ matrix of transition
 probabilities, with entries $\{p_{i:j}\}$.  Specifically, $p_{i:j}$ is
@@ -108,13 +108,13 @@ baseball team, we must simply specify these 600 transition
 probabilities.  However, 304 of these entries must be zero, by the
 rules.  The rest of the probabilities will fall between 0 and
 1---including perhaps dozens more zeros for any given team.
-Twenty-four additional constraints (sums of certain entries equal 1)
-stem from the stipulation that, from each of the 24 transient states
-(i.e.\ other than XXX), the game must, with certainty, proceed.
+Twenty-four additional constraints (sums of the entries in each row
+equal 1) stem from the stipulation that, from each of the 24 transient
+states (i.e.\ other than XXX), the game (or half-inning) must go on.
 
 To determine the values of these parameters for each team, the
 simplest method uses the so-called maximum likelihood estimates
-(MLEs) [deGroot]:
+(MLEs) \cite{degroot1975}:
 $$\mbox{MLE of } p_{ij} = \frac{\mbox{number of transitions made from
     $i$ to $j$}}{\mbox{total number of transitions made from $i$}}$$
 In calculating the MLEs for a particular team, use game records for
@@ -122,15 +122,15 @@ that team.  My team models come only from the game records of the team
 batting at home.  I made this choice to make the models as different
 as possible.  Even in the Major Leagues, ballparks differ
 substantially, and the home field can have a significant effect on the
-play.  The park effects add distinctiveness to the models that also
+play.  These park effects add distinctiveness to the models that also
 comes from the differences in the team at bat.  Fixing the home field
 also reduces variability in the data from game to game.
 
 Unfortunately, baseball models based on MLEs have significant
-drawbacks, especially when we consider the models together.  Though,
+drawbacks, especially when we consider the models together.  Though
 some transitions are common, many others are not.  Invariably, some of
 the more unusual transitions will happen for one team, in one year,
-but not for the other.  As a consequence, the MLE model will make some
+but not for the other.  As a consequence, MLE models will make some
 transitions possible for one team, but not for the other.  For
 example, the uncommon transition 23X:3X happened once in 2011 for the
 Baltimore Orioles, but never in 2011 for the New York Yankees.  Thus,
@@ -139,9 +139,9 @@ half-innings, you can immediately reject, with absolute certainty, the
 statement that the 2011 MLE model of the Yankees simulated the data.
 This automatic rejection makes the correct selection of the Orioles
 easy for a reason that depends more on the noise in the data than on
-the teams under study.  For this reason, the interpretation of our results,
-below, will be made in the context of this rather unfortunate behavior
-of the MLEs for baseball.
+the teams under study.  For this reason, the interpretation of our
+results, below, will be made in the context of this rather unfortunate
+behavior of the MLEs for baseball.
 
 \section{Deciding Between Models}
 Baseball presents one example; below, we introduce another.  Our
@@ -149,7 +149,7 @@ calculations work for any type of model, provided (1) you can simulate
 the true model to generate samples, and (2) you can calculate the
 likelihood of each sample, both for the true model, and for any
 alternative model under consideration.  The relative values of these
-likelihoods determine which model you deem as correct.  Of course,
+likelihoods determine which model you deem correct.  Of course,
 with these calculations, you know in advance which model is correct,
 but knowing this fact allows you to calculate how many samples you
 would have needed to be confident, if you did not already know the
@@ -179,10 +179,10 @@ the time.
 According to the 2011 data, there are only 9 distinct half-innings
 which have probabilities greater than 0.01 (predicted to occur more
 than 1\% of the time).  I call these {\em non-rare half-innings}; the
-rest I call {\em rare half-innings}.  But if we sum the probabilities
-for the non-rare half-innings we only get 0.555, which means that we
-predict a rare half-inning 44.5\% of the time.  As a group, rare half-innings
-are not particularly rare, but each one occurs less than once in 100
+rest I call {\em rare half-innings}.  But the probabilities for the
+non-rare half-innings only sum to 0.555, which predicts a rare
+half-inning 44.5\% of the time.  As a group, rare half-innings are not
+particularly rare, but each one occurs less than once in 100
 half-innings.  How is this statement consistent with reality?  Realize
 that, with no cap on the score, there are infinitely many possible
 half-innings; their probabilities sum to exactly 1 in an infinite
@@ -212,7 +212,7 @@ t-distributions appear nearly indistinguishable from the one for
 N(0,1), but they are slightly warped bells, as described below.
 
 For all t-distributions, the most likely sample is 0, which appears as
-the peak of the bell.  Away from 0 the likelihood drops off into
+the peak of the bell.  Away from 0, the likelihood drops off into
 symmetric tails that extend to infinity in both directions.  Just as
 in baseball, where the probabilities of the different possible
 half-innings sum to 1, the probability density of a t-distribution
@@ -222,21 +222,21 @@ has no limit, the tails must drop off precipitously to keep the area
 below them finite, just as the probabilities for half-innings with
 higher and higher scores must similarly drop off.  A key point is that
 this drop off occurs slower for t(5) than for N(0,1): t-distributions
-have heavier tails, the smaller their degrees of freedom.  In a similar
-fashion, in baseball, the ``tail'' (by which I mean: the probabilities
-of half-innings with higher and higher scores) drops off slower for
-better teams.  But higher probability in the ``tails'' must be
-compensated for by lower probability in the ``center.''  The top of
-the bell is higher for N(0,1) than for the heavier-tailed t(5).
+have heavier tails, the smaller their degrees of freedom.  In a
+similar fashion, in baseball, the ``tail'' (by which I mean: the
+probabilities of half-innings with higher and higher scores) drops off
+slower for better teams.  But higher probability in the ``tails'' must
+be compensated for by lower probability in the ``center.''  The top of
+the bell is lower for the heavier-tailed t(5) than it is for N(0,1).
 Likewise, the lowest scoring half-innings, such as 0:0X:0XX:XXX, are
-more likely for worse teams than for better teams.
+less likely for better teams.
 
 To decide between models, using one sample, you make the choice based
 on which model has a higher likelihood, at the sample.  For the
-t-distributions, if the sample is in the tails, you pick t(5); if the
-sample is in the center, you pick N(0,1).  The intersections of the
-two model's probability density functions determine the boundaries of
-the regions where the different models are selected.  For baseball,
+t-distributions, if the sample is in one of the tails, you pick t(5);
+if the sample is in the center, you pick N(0,1).  The intersections of
+the two model's probability density functions determine the boundaries
+of the regions where the different models are selected.  For baseball,
 you will tend to pick a better team if the half-inning's score is
 higher, and a worse team if the score is lower, although the judgement
 based on likelihood is often more subtle than the one just described.
@@ -244,63 +244,64 @@ based on likelihood is often more subtle than the one just described.
 In many cases, based on one sample, the answer will be wrong, most of
 the time.  Indeed for all t-distributions, including t(5), most
 samples are near the center (top of the bell), so t(5) will be
-rejected in favor of N(0,1) with one sample, most of the time, even if
-it is the true model.  Likewise good teams do often get low scoring
-half-innings.  If this common occurence happens when choosing between
-teams with a single half-inning, a good team may be deemed less likely
-than a worse team to have produced their own data.  It takes many
-samples, including occasional rarities in the tails, to fill in the
-histogram and make the correct choice, confidently.
+rejected in favor of N(0,1), with one sample, most of the time, even
+if it is the true model.  Likewise, good teams do often get low
+scoring half-innings.  If this common occurence happens when choosing
+between teams with a single half-inning, a good team may be deemed
+less likely than a worse team to have produced its own data.  It takes
+many samples, including occasional rarities in the tails, to fill in
+the histogram and make the correct choice, confidently.
 
-How do we compute likelihood?  For t-distributions, it is the height
-of the bell at the sample, given by formulas (for the probability
-density function) easily found online.  In this respect, baseball is
-simpler: the likelihood of a half-inning is the product of all its
-transition probabilities.  In all cases, to compute the likelihood of
-an ensemble of independent samples, you compute the product of the
-likelihoods of the individual samples.  Products appear because of the
-independence (or, in the case of transition probabilities, the
-conditional independence) of the events under consideration.  Note
-that, in working with many samples, you should, instead, work with the
-log-likelihoods, otherwise the numbers will get too small for a
-computer's floating point arithmetic to handle accurately.
+How do we compute likelihood?  For t-distributions, likelihood is the
+height of the bell at the sample, given by formulas (for the
+probability density function) easily found online.  In this respect,
+baseball is simpler: the likelihood of a half-inning is the product of
+all its transition probabilities.  In all cases, to compute the
+likelihood of an ensemble of independent samples, you compute the
+product of the likelihoods of the individual samples.  Products appear
+because of the independence (or, in the case of transition
+probabilities, the conditional independence) of the events under
+consideration.  Note that, in working with many samples, you should,
+instead, work with the log-likelihoods, otherwise the numbers will get
+too small for a computer's floating point arithmetic to handle
+accurately.
 
 We are interested in the relative likelihoods between the two models,
 and we select the model with the greatest likelihood.  This selection
 goes by the name {\em likelihood ratio test} and in our situations, it
-is equivalent making the decision based on the much championed {\em
+is equivalent to making the decision based on the much championed {\em
   Akaike information criterion} or AIC.  Why are the two equivalent?
 The formula for the AIC differs only by adding a term that adjusts for
 bias that inevitably occurs when the modeler makes the selection with
-the same data used for fitting the models [Burnham \& Anderson].  We
-make our selection with data simulated after we fix the parameters, so
-in the formula for AIC, the number of fitted parameters is 0, which
-implies that the two methods agree.
+the same data used for fitting the models \cite{burnham2002}.  We make
+our selection with data simulated after we fix the parameters, so in
+the formula for AIC, there are no fitted parameters, which implies
+that the two methods agree.
 
-As suggested by the name {\em likelihood ratio test} we use ratios.
+As suggested by the name {\em likelihood ratio test}, we use ratios.
 After generating samples from the true model, we select models based
 on the quotient of the product of their corresponding likelihoods for
 true model, over the product of their corresponding likelihoods for
-the alternative model (same samples).  If this quantity is greater
-that 1, we choose the true model; otherwise we choose the alternative
-model.  After taking logs, these quotients and products simplify to
-the sum of the log-likelihood ratios of the single samples, under
-consideration.  When this whole sum is greater than zero (i.e.\
-$\log(1)$), we choose the true model; otherwise, we choose we choose
-the alternative model.
+the alternative model (both using the same true-model samples).
+If this quantity is greater that 1, we choose the true model;
+otherwise we choose the alternative model.  After taking logs, these
+quotients and products simplify to the sum of the log-likelihood
+ratios of the single samples, under consideration.  When this whole
+sum is greater than zero (i.e.\ $\log(1)$), we choose the true model;
+otherwise, we choose we choose the alternative model.
 
 The mean of these same log-likelihood ratios is an unbiased estimate
 of the so-called Kullback-Leibler divergence (defined as the expected
-value of this same quantity) [Burnham \& Andersen].  While such a
-Monte Carlo estimate can be either positive, negative, or zero, the
-true value of the Kullback-Leiber divergence always remains
+value of this same quantity) \cite{burnham2002}.  While such a Monte
+Carlo estimate can be either positive, negative, or zero, the true
+value of the Kullback-Leiber divergence always remains
 nonnegative---and positive as long as the models make different
 predictions (known together as the {\em Gibbs inequality}).  From this
-result, and the central limit theorem, that we can be sure that we will,
-with any level of confidence short of certainty, select the true
-model, with enough samples, provided the two models make different
-predictions (e.g.\ for two baseball models, at least one transition
-probability must be different).
+result, the central limit theorem, and a finite variance assumption,
+we can be sure we will, with any level of confidence short of
+certainty, select the true model, with enough samples, provided the
+two models make different predictions (e.g.\ for two baseball models,
+at least one transition probability must be different).
 
 \section{Computing The Samples Needed}
 
@@ -371,8 +372,8 @@ t-distributions involves the above mentioned properties of the MLE.
 Specifically, in a simulation of 10,000 of the Baltimore-at-bat
 half-innings, it was discovered that just under 2\% had not ever
 occurred for the Yankees while batting in their New York home stadium
-in 2011.  If one of these half-innings occurs in a set of Baltimore at bat
-samples, the selection is immediately made for the true model, the
+in 2011.  If one of these half-innings occurs in a set of Baltimore at
+bat samples, the selection is immediately made for the true model, the
 Orioles.  At least one such half-inning is expected in approximately
 45\% of sequences of 31 Baltimore half-innings, making the correct
 selection substantially easier.  A possible solution to this problem
@@ -381,26 +382,29 @@ transition remains impossible, for any team, that stands possible for
 another.  After all, if a transition truly can happen, why deem it
 impossible, even if it never occurred for a given team one year?
 There exist principled ways of making this adjustment, discussed in
-[Marchi \& Albert, 2013], but they are beyond the scope of the present
-paper.
+\cite{marchi2013}, but they are beyond the scope of the present paper.
 
 The number of samples needed for model selection with confidence
 offers an alternative to the Kullback-Leibler divergence to quantify
 the similarity of two models.  This alternative may be easier to interpret
 for those untrained in model selection, and unfamiliar with the
-Kullback-Leibler divergence.  However, our measure is discrete, unlike
-the Kullback-Leibler divergence, and it is substantially harder to
+Kullback-Leibler divergence.  However, the unlike the Kullback-Leibler
+divergence, the proposed measure is discrete, and substantially harder to
 compute.
 
 \section{Acknowledgements}
 
 Rebeca Berger helped prepared the data for processing, and adapted
-code from the GitHub companion to [Marchi \& Albert]:
-https://github.com/maxtoki/baseball\_R.  Our code is available at:
+code from the GitHub companion to \cite{marchi2013}:
+https://github.com/maxtoki/baseball\_R.  We provide our code to the
+public,  available at:
 https://github.com/seancarverphd/klir. Note that the first GitHub
 repository also contains the 2011 baseball data needed to run our code.
+\nocite{*}
 
 % Use BibTeX
+\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}
 
