@@ -113,7 +113,7 @@ equal 1) stem from the stipulation that, from each of the 24 transient
 states (i.e.\ other than XXX), the game (or half-inning) must go on.
 
 To determine the values of these parameters for each team, the
-simplest method uses the so-called maximum likelihood estimates
+simplest method uses the so-called {\em maximum likelihood estimates}
 (MLEs) \cite{degroot1975}:
 $$\mbox{MLE of } p_{ij} = \frac{\mbox{number of transitions made from
     $i$ to $j$}}{\mbox{total number of transitions made from $i$}}$$
@@ -225,9 +225,9 @@ this drop off occurs slower for t(5) than for N(0,1): t-distributions
 have heavier tails, the smaller their degrees of freedom.  In a
 similar fashion, in baseball, the ``tail'' (by which I mean: the
 probabilities of half-innings with higher and higher scores) drops off
-slower for better teams.  But higher probability in the ``tails'' must
+slower for better teams.  But higher probability in the ``tail(s)'' must
 be compensated for by lower probability in the ``center.''  The top of
-the bell is lower for the heavier-tailed t(5) than it is for N(0,1).
+the bell is lower for the heavier-tailed t(5), than it is for N(0,1).
 Likewise, the lowest scoring half-innings, such as 0:0X:0XX:XXX, are
 less likely for better teams.
 
@@ -243,7 +243,7 @@ based on likelihood is often more subtle than the one just described.
 
 In many cases, based on one sample, the answer will be wrong, most of
 the time.  Indeed for all t-distributions, including t(5), most
-samples are near the center (top of the bell), so t(5) will be
+samples appear near the center (top of the bell), so t(5) will be
 rejected in favor of N(0,1), with one sample, most of the time, even
 if it is the true model.  Likewise, good teams do often get low
 scoring half-innings.  If this common occurence happens when choosing
@@ -256,7 +256,7 @@ How do we compute likelihood?  For t-distributions, likelihood is the
 height of the bell at the sample, given by formulas (for the
 probability density function) easily found online.  In this respect,
 baseball is simpler: the likelihood of a half-inning is the product of
-all its transition probabilities.  In all cases, to compute the
+the probabilities of all its transitions.  In all cases, to compute the
 likelihood of an ensemble of independent samples, you compute the
 product of the likelihoods of the individual samples.  Products appear
 because of the independence (or, in the case of transition
@@ -290,8 +290,8 @@ ratios of the single samples, under consideration.  When this whole
 sum is greater than zero (i.e.\ $\log(1)$), we choose the true model;
 otherwise, we choose we choose the alternative model.
 
-The mean of these same log-likelihood ratios is an unbiased estimate
-of the so-called Kullback-Leibler divergence (defined as the expected
+The mean of these log-likelihood ratios is an unbiased estimate of the
+so-called {\em Kullback-Leibler divergence} (defined as the expected
 value of this same quantity) \cite{burnham2002}.  While such a Monte
 Carlo estimate can be either positive, negative, or zero, the true
 value of the Kullback-Leiber divergence always remains
@@ -301,7 +301,8 @@ result, the central limit theorem, and a finite variance assumption,
 we can be sure we will, with any level of confidence short of
 certainty, select the true model, with enough samples, provided the
 two models make different predictions (e.g.\ for two baseball models,
-at least one transition probability must be different).
+at least one transition probability must be different).  In other
+words, our test is {\em consistent} \cite{burnham2002}.
 
 \section{Computing The Samples Needed}
 
@@ -322,25 +323,26 @@ Once I compute the matrix, I can compute the proportion of entries in
 each column which are positive (indicating a correct selection).  The
 column number indicates how many samples are used for the selection,
 so the column number for which this proportion crosses the chosen
-confidence level (e.g.\ 0.95) {\em should} be my answer.  In practice,
-however, this crossing is not well defined because the proportion
-varies randomly, and in a way that varies across columns.  As a
-result, there appears a region, which I call the {\em region of
-  interest}, where the desired crossing occurs many times.
+confidence level (e.g.\ 0.95) {\em should} be my answer.  With
+finitely many samples, however, this crossing is not well defined
+because the proportion varies randomly, and in a way that varies
+across columns.  As a result, there appears a region, which I call the
+{\em region of interest}, where the desired crossing occurs many
+times.
 
-My first solution was to zoom in on the region of interest and perform
-a linear regression on the proportion correct to pinpoint an estimate
+My first solution zooms in on the region of interest and performs a
+linear regression on the proportion correct to pinpoint an estimate
 where this proportion crosses the confidence level.  But this
 proportion must be a multiple of the reciprocal of the number of rows
 in the matrix.  Unfortunately, this discretization makes for poor
 regression.  So instead, I now work with quantiles.  For example, the
 proportion correct crosses 0.95 at the same place where the $5^{th}$
 percentile of the log-likelihood ratio crosses 0 (i.e.\ $\log(1)$, the
-threshold for the sum of the log-likelihoods to indicate a correct
-selection).  As before, the quantiles are random, in a way that varies
-across column, so again, we must zoom in on a region of interest and
-perform a regression.  But the quantiles are no longer discrete and
-the regression performs better.
+threshold for the sum of the log-likelihood ratios to indicate a
+correct selection).  As before, the quantiles are random, in a way
+that varies across column, so again, we must zoom in on a region of
+interest and perform a regression.  But the quantiles are no longer
+discrete and the regression performs better.
 
 I have tried both simple linear regression (on the quantiles, with the
 R command lm()) and quantile regression (directly on the entries of
