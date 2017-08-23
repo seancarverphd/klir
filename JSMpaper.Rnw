@@ -320,7 +320,7 @@ controlled by adjusting the number of samples available in the
 bootstrap population.
 
 Once I compute the matrix, I can compute the proportion of entries in
-each column which are positive (indicating a correct selection).  The
+each column that are positive (indicating a correct selection).  The
 column number indicates how many samples are used for the selection,
 so the column number for which this proportion crosses the chosen
 confidence level (e.g.\ 0.95) {\em should} be my answer.  With
