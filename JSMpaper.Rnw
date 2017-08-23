@@ -245,7 +245,7 @@ In many cases, based on one sample, the answer will be wrong, most of
 the time.  Indeed for all t-distributions, including t(5), most
 samples appear near the center (top of the bell), so t(5) will be
 rejected in favor of N(0,1), with one sample, most of the time, even
-if it is the true model.  Likewise, good teams do often get low
+if t(5) is the true model.  Likewise, good teams do often get low
 scoring half-innings.  If this common occurence happens when choosing
 between teams with a single half-inning, a good team may be deemed
 less likely than a worse team to have produced its own data.  It takes
@@ -280,7 +280,7 @@ that the two methods agree.
 
 As suggested by the name {\em likelihood ratio test}, we use ratios.
 After generating samples from the true model, we select models based
-on the quotient of the product of true-model likelihoods, over the
+on the ratio of the product of true-model likelihoods, over the
 product of alternative-model likelihoods (both using the same
 true-model samples).  If this quantity is greater that 1, we choose
 the true model; otherwise we choose the alternative model.  After
