@@ -287,7 +287,7 @@ the true model; otherwise we choose the alternative model.  After
 taking logs, these quotients and products simplify to the sum of the
 log-likelihood ratios of the single samples.  When this whole sum is
 greater than zero (i.e.\ $\log(1)$), we choose the true model;
-otherwise, we choose we choose the alternative model.
+otherwise, we choose the alternative model.
 
 The mean of the single-sample log-likelihood ratios is an unbiased
 estimate of the so-called {\em Kullback-Leibler divergence} from the
