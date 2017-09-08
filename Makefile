@@ -7,7 +7,8 @@ JSMpaper.pdf: JSMpaper.Rnw
 	bibtex JSMpaper-knitr
 	pdflatex JSMpaper-knitr.tex
 	pdflatex JSMpaper-knitr.tex
-	dvipdf JSMpaper-knitr.dvi JSMpaper.pdf
+	cp JSMpaper-knitr.pdf JSMpaper.pdf
+#	dvipdf JSMpaper-knitr.dvi JSMpaper.pdf
 
 clean:
 	rm JSMpaper-knitr.Rnw JSMpaper-knitr.dvi JSMpaper.pdf JSMpaper-knitr.tex *.log *.aux 

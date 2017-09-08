@@ -55,6 +55,13 @@ TransMatList <- function(AllTeamData) {
   return(TMList)
 }
 
+CountMat <- function(AllTeamData, HomeTeam='ALL') {
+  CM <- FindCountMat(AllTeamData, HomeTeam)
+  row.names(CM) <- rowcodes()
+  colnames(CM) <- colcodes()
+  return(CM)
+}
+
 # Get a matrix concatenating pairs of strings for states.
 # These pairs correspond to labels of possible or impossible transitions.
 # For easy reading the trailing, ':' has been removed, where applicable.
@@ -77,6 +84,13 @@ TransitionNameMatrix <- function() {
 # The matrix of transition labels from TransitionNameMatrix() concatentated into a 600-dim vector.
 TransitionNameVector <- function() {
   return (c(TransitionNameMatrix()))
+}
+
+TransitionCountVector <- function(AllTeamData, hometeam='ALL') {
+  CM <- CountMat(AllTeamData, hometeam)
+  counts <- c(CM)
+  names(counts) <- TransitionNameVector()
+  return(counts)
 }
 
 # A 600 by (number of teams) matrix of transition probabilities across teams.
