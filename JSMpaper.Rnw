@@ -49,6 +49,7 @@ source('simulation.R')
 @
 <<loadshort,echo=F,include=F,cache=F>>=
 source('msbaseball.R')
+source('kli.R')
 source('wcloud.R')
 source('reps.R')
 @ 
@@ -86,7 +87,12 @@ second.common.percentage <- round(100*exp(likes.unique.half.innings[sorted.index
 number.of.nonrare.half.innings <- length(percentages.trimmed)
 float.probability.nonrare <- round(sum(percentages.trimmed))/100
 probability.nonrare <- format(float.probability.nonrare, nsmall=2)
-percentage.rare <- 100*(1-float.probability.nonrare)
+percentage.rare <- round(100*(1-float.probability.nonrare))
+names(percentage.rare) <- 'Rare Half-Innings'
+percentages.with.rare <- c(percentage.rare, percentages.trimmed)
+@
+<<tdistributions,echo=F,include=F,cache=T>>=
+sample.from.t <- format(sim.t(1,df=5,seed=1))
 @ 
 <<tests,echo=F,include=F,cache=F>>=
 stopifnot(number.of.transient.states == 24)
@@ -107,7 +113,8 @@ stopifnot(identical(second.common.half.inning,'0:0X:0XX:1XX:XXX'))
 stopifnot(second.common.percentage == 8)
 stopifnot(number.of.nonrare.half.innings == 9)
 stopifnot(identical(probability.nonrare,'0.56'))
-stopifnot(all.equal(percentage.rare,44))
+stopifnot(percentage.rare==44)
+stopifnot(identical(sample.from.t,"-0.6576941"))
 @ 
 \section{Motivation}
 When working with two or more probabilistic models, you may want to
@@ -175,7 +182,7 @@ League play.
 <<wordcloudtransitions, echo=F, fig.cap='The baseball state transitions that occurred throughout the 2011 Major League season, arranged randomly, and sized according to their frequency of occurrence.'>>=
 transitions <- TransitionNameVector()
 frequencies <- TransitionCountVector(data2011C)
-set.seed(1)
+set.seed(2)
 wordcloud(transitions,frequencies,min.freq=1)
 @ 
 
@@ -262,19 +269,25 @@ occurs only \Sexpr{second.common.percentage}\% of the time.
 Based on the 2011 data, there are only
 \Sexpr{number.of.nonrare.half.innings} distinct half-innings which
 have probabilities greater than 0.01 (predicted to occur more than 1\%
-of the time, Figure ??).  I call these {\em non-rare half-innings};
-the rest I call {\em rare half-innings}.  But the probabilities for
-the non-rare half-innings only sum to \Sexpr{probability.nonrare},
-which predicts a rare half-inning \Sexpr{percentage.rare}\% of the
-time.  As a group, rare half-innings are not particularly rare, but
-each one occurs less than once in 100 half-innings.  How is this
-statement consistent with reality?  Realize that, with no cap on the
-score, there are infinitely many possible half-innings; their
-probabilities sum to exactly 1 in an infinite convergent series.
-Necessarily, these probabilities tail off to keep the sum finite, but
-still, the fact that individual half-innings have such low
-probabilities is made up for by the fact that there are so many of
-them.
+of the time, Figure \ref{fig:wordcloudhalfinnings}).  I call these
+{\em non-rare half-innings}; the rest I call {\em rare half-innings}.
+But the probabilities for the non-rare half-innings only sum to
+\Sexpr{probability.nonrare}, which predicts a rare half-inning
+\Sexpr{percentage.rare}\% of the time.  As a group, rare half-innings
+are not particularly rare, but each one occurs less than once in 100
+half-innings.  How is this statement consistent with reality?  Realize
+that, with no cap on the score, there are infinitely many possible
+half-innings; their probabilities sum to exactly 1 in an infinite
+convergent series.  Necessarily, these probabilities tail off to keep
+the sum finite, but still, the fact that individual half-innings have
+such low probabilities is made up for by the fact that there are so
+many of them.
+
+<<wordcloudhalfinnings, echo=F, fig.cap='Most common half-innings, as predicted from transitions probabilities fit with 2011 Major League season data, arranged randomly, and sized according to predicted frequency of occurrence.  Half-innings with predicted probabilities less than 0.01 are lumped together as "Rare Half Innings."'>>=
+set.seed(3)
+wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
+@ 
+
 
 For a second example, we use the student t-distribution.  Instead of
 600 transition probabilities, t-distributions have a single parameter:
@@ -282,19 +295,20 @@ the degrees of freedom.  Our true model will be a t-distribution with
 5 degrees of freedom, t(5), whereas our alternative model will be a
 t-distribution with infinite degrees of freedom, $\mbox{t}(\infty)$,
 also known as the standard Normal distribution, N(0,1).  Analogous to
-a single half-inning in baseball (such as 0:0X:0XX:XXX), each sample
-from a t-distribution is a single number on the real line, either
-positive, negative, or zero (such as -0.6264538).  Consequently,
-unlike in baseball with its discrete half-innings, for the
-t-distributions, the samples occur on a continuum---in one dimension.
-As with baseball, the next step grasps the likelihoods of the
-different possibilities.  For the t-distributions, the simplicity of
-the sample space allows you to plot the likelihood (on the vertical
-axis) against the sample (on the horizontal axis) which shows the
-graph of the so-called probability density function.  This graph for
-N(0,1) is just the familiar {\em bell curve}; the graphs for the other
-t-distributions appear nearly indistinguishable from the one for
-N(0,1), but they are slightly warped bells, as described below.
+a single half-inning in baseball (such as
+\Sexpr{most.common.half.inning}), each sample from a t-distribution is
+a single number on the real line, either positive, negative, or zero
+(such as \Sexpr{sample.from.t}).  Consequently, unlike in baseball
+with its discrete half-innings, for the t-distributions, the samples
+occur on a continuum---in one dimension.  As with baseball, the next
+step grasps the likelihoods of the different possibilities.  For the
+t-distributions, the simplicity of the sample space allows you to plot
+the likelihood (on the vertical axis) against the sample (on the
+horizontal axis) which shows the graph of the so-called probability
+density function (Figure ??).  This graph for N(0,1) is just the
+familiar {\em bell curve}; the graphs for the other t-distributions
+appear nearly indistinguishable from the one for N(0,1), but they are
+slightly warped bells, as described below.
 
 For all t-distributions, the most likely sample is 0, which appears as
 the peak of the bell.  Away from 0, the likelihood drops off into
@@ -310,11 +324,11 @@ this drop off occurs slower for t(5) than for N(0,1): t-distributions
 have heavier tails, the smaller their degrees of freedom.  In a
 similar fashion, in baseball, the ``tail'' (by which I mean: the
 probabilities of half-innings with higher and higher scores) drops off
-slower for better teams.  But higher probability in the ``tail(s)'' must
-be compensated for by lower probability in the ``center.''  The top of
-the bell is lower for the heavier-tailed t(5), than it is for N(0,1).
-Likewise, the lowest scoring half-innings, such as 0:0X:0XX:XXX, are
-less likely for better teams.
+slower for better teams.  But higher probability in the ``tail(s)''
+must be compensated for by lower probability in the ``center.''  The
+top of the bell is lower for the heavier-tailed t(5), than it is for
+N(0,1).  Likewise, the lowest scoring half-innings, such as
+\Sexpr{most.common.half.inning}, are less likely for better teams.
 
 To decide between models, using one sample, you make the choice based
 on which model has a higher likelihood, at the sample.  For the
