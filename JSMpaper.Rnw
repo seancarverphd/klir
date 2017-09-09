@@ -64,6 +64,30 @@ transition.counts.nya.2011 <- CountMat(data2011C, 'NYA')
 number.of.distinct.transitions.2011 <- sum(transition.counts.all.2011 > 0)
 number.of.legal.transitions.never.occurred.2011 <- number.of.legal.transitions - number.of.distinct.transitions.2011
 @
+<<simulate.half.innings,echo=F,include=F,cache=T>>=
+half.inning.sample.size <- 100000
+half.innings <- sim.baseball(half.inning.sample.size,ALL,seed=1)
+@
+<<process.half.innings,echo=F,include=F,cache=T>>=
+unique.half.innings <- unique(half.innings)
+likes.unique.half.innings <- likes.baseball(unique.half.innings,ALL)
+sorted.index <- sort(likes.unique.half.innings,decreasing=TRUE,index.return=TRUE)$ix
+sorted.half.innings <- unique.half.innings[sorted.index]
+# empirical.sorted.half.innings <- sort(table(half.innings), decreasing=TRUE)
+percentages.sorted <- 100*exp(likes.unique.half.innings[sorted.index])
+names(percentages.sorted) <- sorted.half.innings
+percentages.trimmed <- percentages.sorted[percentages.sorted>=1]
+@ 
+<<half.inning.summaries,echo=F,include=F,cache=T>>= 
+most.common.half.inning <- sorted.half.innings[1]
+most.common.percentage <- round(100*exp(likes.unique.half.innings[sorted.index[1]]))
+second.common.half.inning <- sorted.half.innings[2]
+second.common.percentage <- round(100*exp(likes.unique.half.innings[sorted.index[2]]))
+number.of.nonrare.half.innings <- length(percentages.trimmed)
+float.probability.nonrare <- round(sum(percentages.trimmed))/100
+probability.nonrare <- format(float.probability.nonrare, nsmall=2)
+percentage.rare <- 100*(1-float.probability.nonrare)
+@ 
 <<tests,echo=F,include=F,cache=F>>=
 stopifnot(number.of.transient.states == 24)
 stopifnot(number.of.states == 25)
@@ -77,6 +101,13 @@ stopifnot(transition.counts.all.2011['1:','1:'] >0)
 stopifnot(transition.counts.all.2011['1XX:','1XX:'] > 0)
 stopifnot(transition.counts.bal.2011['23X:','3X:'] == 1)
 stopifnot(transition.counts.nya.2011['23X:','3X:'] == 0)
+stopifnot(identical(most.common.half.inning,'0:0X:0XX:XXX'))
+stopifnot(most.common.percentage == 31)
+stopifnot(identical(second.common.half.inning,'0:0X:0XX:1XX:XXX'))
+stopifnot(second.common.percentage == 8)
+stopifnot(number.of.nonrare.half.innings == 9)
+stopifnot(identical(probability.nonrare,'0.56'))
+stopifnot(all.equal(percentage.rare,44))
 @ 
 \section{Motivation}
 When working with two or more probabilistic models, you may want to
@@ -144,6 +175,7 @@ League play.
 <<wordcloudtransitions, echo=F, fig.cap='The baseball state transitions that occurred throughout the 2011 Major League season, arranged randomly, and sized according to their frequency of occurrence.'>>=
 transitions <- TransitionNameVector()
 frequencies <- TransitionCountVector(data2011C)
+set.seed(1)
 wordcloud(transitions,frequencies,min.freq=1)
 @ 
 
@@ -217,29 +249,32 @@ has ever consistently batted over .500, meaning that most plate
 appearances, for all batters, have led to an out.  From this fact, we
 can guess that, throughout Major League history, the most common
 half-inning has been the one in which there are three outs in a row:
-0:0X:0XX:XXX.  Indeed, simulations with the transition probabilities
-(combined for all 2011 Major League teams, home and away) predict
-0:0X:0XX:XXX for 31.5\% of the half-innings.  Individual teams will
-have different percentages for this occurrence, higher or lower,
-depending on the skill of their batters.  True, this most common
-outcome does not represent a majority of all half-innings, but the
-next most common half-inning, 0:X:0XX:1XX:XXX, occurs only 7.6\% of
-the time.
+\Sexpr{most.common.half.inning}.  Indeed, simulations with the
+transition probabilities (combined for all 2011 Major League teams,
+home and away) predict \Sexpr{most.common.half.inning} for
+\Sexpr{most.common.percentage}\% of the half-innings.  Individual
+teams will have different percentages for this occurrence, higher or
+lower, depending on the skill of their batters.  True, this most
+common outcome does not represent a majority of all half-innings, but
+the next most common half-inning, \Sexpr{second.common.half.inning},
+occurs only \Sexpr{second.common.percentage}\% of the time.
 
-According to the 2011 data, there are only 9 distinct half-innings
-which have probabilities greater than 0.01 (predicted to occur more
-than 1\% of the time).  I call these {\em non-rare half-innings}; the
-rest I call {\em rare half-innings}.  But the probabilities for the
-non-rare half-innings only sum to 0.555, which predicts a rare
-half-inning 44.5\% of the time.  As a group, rare half-innings are not
-particularly rare, but each one occurs less than once in 100
-half-innings.  How is this statement consistent with reality?  Realize
-that, with no cap on the score, there are infinitely many possible
-half-innings; their probabilities sum to exactly 1 in an infinite
-convergent series.  Necessarily, these probabilities tail off to keep
-the sum finite, but still, the fact that individual half-innings have
-such low probabilities is made up for by the fact that there are so
-many of them.
+Based on the 2011 data, there are only
+\Sexpr{number.of.nonrare.half.innings} distinct half-innings which
+have probabilities greater than 0.01 (predicted to occur more than 1\%
+of the time, Figure ??).  I call these {\em non-rare half-innings};
+the rest I call {\em rare half-innings}.  But the probabilities for
+the non-rare half-innings only sum to \Sexpr{probability.nonrare},
+which predicts a rare half-inning \Sexpr{percentage.rare}\% of the
+time.  As a group, rare half-innings are not particularly rare, but
+each one occurs less than once in 100 half-innings.  How is this
+statement consistent with reality?  Realize that, with no cap on the
+score, there are infinitely many possible half-innings; their
+probabilities sum to exactly 1 in an infinite convergent series.
+Necessarily, these probabilities tail off to keep the sum finite, but
+still, the fact that individual half-innings have such low
+probabilities is made up for by the fact that there are so many of
+them.
 
 For a second example, we use the student t-distribution.  Instead of
 600 transition probabilities, t-distributions have a single parameter:
