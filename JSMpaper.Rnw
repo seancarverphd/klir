@@ -551,11 +551,10 @@ adjusting the number of samples available in the bootstrap population.
     large population drawn from the true model, t(5).  A single log-likelihood
     ratio is the log of the quotient of the probability density of the
     true model at the sample, to the probability density of the
-    alternative model, N(0,1), at the sample.  The sum of a number of
-    log-likelihood ratios is the log-likelihood ratio of that ensemble
- of 
+    alternative model, N(0,1), at the sample.  The sum of a number of these values, for an ensemble of independent samples, is 
+    the log-likelihood ratio of that ensemble.
     The $k^{th}$ column contains the sum of $k$ log-likelihood
-    ratio.  A positive entry indicates a correct selection with the
+    ratios.  A positive entry indicates a correct selection with the
     corresponding ensemble.}
 <<table.of.bootstrap, echo=F>>=
 colnames(bootstrap.table) <- c("One single", "Sum of 2", "Sum of 3", "Sum of 4", "Sum of 5")
