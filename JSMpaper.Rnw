@@ -12,7 +12,7 @@
 \title{Number of Samples Needed For Model Selection With Confidence}
 
 \author{Sean G. Carver\thanks{American University, 4400 Massachusetts
-    Avenue NW, Washington DC, 20016}}
+    Avenue, NW, Washington, DC, 20016}}
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
@@ -397,7 +397,7 @@ For a second example, we use the student t-distribution.  Instead of
 the degrees of freedom.  Our true model will be a t-distribution with
 5 degrees of freedom, t(5), whereas our alternative model will be a
 t-distribution with infinite degrees of freedom, $\mbox{t}(\infty)$,
-also known as the standard Normal distribution, N(0,1).  Analogous to
+also known as the standard Normal distribution, N(0, 1).  Analogous to
 a single half-inning in baseball (such as
 \Sexpr{most.common.half.inning}), each sample from a t-distribution is
 a single number on the real line, either positive, negative, or zero
@@ -408,12 +408,12 @@ step grasps the likelihoods of the different possibilities.  For the
 t-distributions, the simplicity of the sample space allows you to plot
 the likelihood (on the vertical axis) against the sample (on the
 horizontal axis) which shows the graph of the so-called probability
-density function (Figure \ref{fig:densities}).  This graph for N(0,1)
+density function (Figure \ref{fig:densities}).  This graph for N(0, 1)
 is just the familiar {\em bell curve}; the graphs for the other
 t-distributions appear nearly indistinguishable from the one for
-N(0,1), but they are slightly warped bells, as described below.
+N(0, 1), but they are slightly warped bells, as described below.
 
-<<densities, message=F, echo=F, fig.cap='Selecting a model with only one data point: the probability density functions of the t(5) and N(0,1) distributions.  Assuming the t(5) distribution generates the data point, the correct selection will be made only if this data point falls in the tails of the distribution (shown with green shading), otherwise, more likely, the incorrect selection of N(0,1) is made (shown with yellow shading).  Improving the odds of a correct selection requires many more data points.'>>=
+<<densities, message=F, echo=F, fig.cap='Selecting a model with only one data point: the probability density functions of the t(5) and N(0, 1) distributions.  Assuming the t(5) distribution generates the data point, the correct selection will be made only if this data point falls in the tails of the distribution (shown with green shading), otherwise, more likely, the incorrect selection of N(0, 1) is made (shown with yellow shading).  Improving the odds of a correct selection requires many more data points.'>>=
 library(ggplot2)
 dcurve5 <- function(x) {return(dt(x,df=5))}
 dcurveinf <- function(x) {return(dt(x,df=Inf))}
@@ -446,20 +446,20 @@ range of possible samples.  Because the range of possible t-samples
 has no limit, the tails must drop off precipitously to keep the area
 below them finite, just as the probabilities for half-innings with
 higher and higher scores must similarly drop off.  A key point is that
-this drop off occurs slower for t(5) than for N(0,1): t-distributions
+this drop off occurs slower for t(5) than for N(0, 1): t-distributions
 have heavier tails, the smaller their degrees of freedom.  In a
 similar fashion, in baseball, the ``tail'' (by which I mean: the
 probabilities of half-innings with higher and higher scores) drops off
 slower for better teams.  But higher probability in the ``tail(s)''
 must be compensated for by lower probability in the ``center.''  The
 top of the bell is lower for the heavier-tailed t(5), than it is for
-N(0,1).  Likewise, the lowest scoring half-innings, such as
+N(0, 1).  Likewise, the lowest scoring half-innings, such as
 \Sexpr{most.common.half.inning}, are less likely for better teams.
 
 To decide between models, using one sample, you make the choice based
 on which model has a higher likelihood, at the sample.  For the
 t-distributions, if the sample is in one of the tails, you pick t(5);
-if the sample is in the center, you pick N(0,1).  The intersections of
+if the sample is in the center, you pick N(0, 1).  The intersections of
 the two model's probability density functions determine the boundaries
 of the regions where the different models are selected.  For baseball,
 you will tend to pick a better team if the half-inning's score is
@@ -469,7 +469,7 @@ based on likelihood is often more subtle than the one just described.
 In many cases, based on one sample, the answer will be wrong, most of
 the time.  Indeed for all t-distributions, including t(5), most
 samples appear near the center (top of the bell), so t(5) will be
-rejected in favor of N(0,1), with one sample, most of the time, even
+rejected in favor of N(0, 1), with one sample, most of the time, even
 if t(5) is the true model.  Likewise, good teams do often get low
 scoring half-innings.  If this common occurence happens when choosing
 between teams with a single half-inning, a good team may be deemed
@@ -551,7 +551,8 @@ adjusting the number of samples available in the bootstrap population.
     large population drawn from the true model, t(5).  A single log-likelihood
     ratio is the log of the quotient of the probability density of the
     true model at the sample, to the probability density of the
-    alternative model, N(0,1), at the sample.  The sum of a number of these values, for an ensemble of independent samples, is 
+    alternative model, N(0, 1), at the sample.  The sum of a number of 
+    these values, for an ensemble of independent samples, is 
     the log-likelihood ratio of that ensemble.
     The $k^{th}$ column contains the sum of $k$ log-likelihood
     ratios.  A positive entry indicates a correct selection with the
@@ -598,7 +599,7 @@ ggplot(data=data.frame(Sample.Size=roi$samples,Fifth.Percentile=roi$quantiles, B
     annotate("segment", x=needed, xend=needed, y=-0.4, yend=-0.025, color="darkgreen", alpha=I(.6), arrow=arrow()) +
     annotate("text", x=needed+5, y=-0.4, color="darkgreen", alpha=I(.6), label="Number of samples needed\nfor 95% confidence")
 @
-<<estimatorsviolin, echo=F, fig.cap='Distribution of the estimator of the number of samples needed to correctly reject N(0,1) in favor of the correctly specified t(5) model.  Shown are violin and box plots for two alternative methods of computing the estimate.  Left: simple linear regression on the fifth percentile of the log-likelihood ratio.  The procedure shown in Figure \ref{fig:fifthpercentile} (left) occasionally produces extreme outliers.  Right: quantile regression with the R function quantreg::rq() applied to the same data.'>>=
+<<estimatorsviolin, echo=F, fig.cap='Distribution of the estimator of the number of samples needed to correctly reject N(0, 1) in favor of the correctly specified t(5) model.  Shown are violin and box plots for two alternative methods of computing the estimate.  Left: simple linear regression on the fifth percentile of the log-likelihood ratio.  The procedure shown in Figure \ref{fig:fifthpercentile} (left) occasionally produces extreme outliers.  Right: quantile regression with the R function quantreg::rq() applied to the same data.'>>=
 ggplot(df.estimators, aes(x=label,y=estimator)) + geom_violin() + geom_boxplot(width=0.1) +
   xlab('Type of Regression') + ylab('Estimate') + 
   theme(axis.text.x=element_text(size=15))
@@ -637,7 +638,7 @@ default arguments, where possible.  A careful reading of the
 documentation does reveal fundamental differences between these two
 procedures, however, there was there was not a substantial difference
 in the spread of the estimates (Figure \ref{fig:estimatorsviolin}).
-On one hand, the lm command occasionally fails, producing wrong or
+On one hand, the lm() command occasionally fails, producing wrong or
 even nonsensical (negative, not shown) results.  However,
 unfortunately, the quantreg:rq() method takes almost twice as long.
 Indeed, while both methods require the computation of a region of
@@ -655,16 +656,16 @@ $\Sexpr{length(slr.reps)}$ estimates, shown in Figure
 the lm() function: $\Sexpr{mean.slr} \pm \Sexpr{se.slr}$, (same number
 of estimates, shown in Figure \ref{fig:estimatorsviolin}).  After
 eliminating the two extreme outliers from the distribution, the result
-changes to $\Sexpr{mean.slr.na} \pm \Sexpr{se.slr.na}$.
+changes to $\Sexpr{mean.slr.na} \pm \Sexpr{se.slr.na}$ estimates.
 
 On the other hand, I calculate that it takes
 $\Sexpr{mean.bb} \pm \Sexpr{se.bb}$ half-innings, simulated from the
 MLE model derived from the 2011 Baltimore Orioles, batting at home, to
-reject, with 95\% confidence, the statment that these half-innings
+reject, with 95\% confidence, the statement that these half-innings
 were sampled from the 2011 New York Yankees MLE model.  
 
 The computations for the t distributions, each with a $\pm 1$ range
-for the estimates, took 6 and 12 minutes on a MacBook Pro, for
+for the estimates, took 6 minutes and 12 minutes on a MacBook Pro, for
 respectively, the lm() method and the quantreg::rq() method.  The
 duration of the baseball computations fell within that same range.
 The baseball calculation required averaging only
@@ -702,9 +703,9 @@ compute.
 \section{Code}
 We provide code for our calculations, and source for this paper, using
 best practices for reproducible research at:
-https://github.com/seancarverphd/klir.  Note that the GitHub mentioned
-in the acknowledgements contains the 2011 baseball data needed to use
-our code. 
+https://github.com/seancarverphd/klir.  Note that the GitHub
+repository mentioned below in the acknowledgements contains the 2011
+baseball data needed to run our code.
 
 \section{Acknowledgements}
 Rebeca Berger helped prepared the data for processing, and adapted
