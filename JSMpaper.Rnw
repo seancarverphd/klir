@@ -47,7 +47,7 @@ Kullback-Leibler divergence
 <<loadlong,echo=F,include=F,cache=T>>=
 source('simulation.R')
 @
-<<loadshort,echo=F,include=F,cache=F>>=
+<<loadshort,echo=F,include=F,cache=T>>=
 source('msbaseball.R')
 source('kli.R')
 source('wcloud.R')
@@ -93,6 +93,65 @@ percentages.with.rare <- c(percentage.rare, percentages.trimmed)
 @
 <<tdistributions,echo=F,include=F,cache=T>>=
 sample.from.t <- format(sim.t(1,df=5,seed=1))
+@
+<<bootstraptable,echo=F,cache=T>>=
+samples.t5 <- sim.t(200000, df=5, seed=7)
+likes.t5.t5 <- likes.t(samples.t5, df=5)
+likes.t5.normal <- likes.t(samples.t5,df=Inf)
+bootstrap.table <- bootstrap.matrix(likes.t5.t5, likes.t5.normal, max.samples=5, bootstrap.rows=7, seed=5)
+bottom.right.for.testing <- format(bootstrap.table[7,5])
+proportion.correct <- prop.choose.hyp(likes.t5.t5, likes.t5.normal, max.samples=250, bootstrap.rows=1000, seed=5)
+x.range <- 1:250
+prop.50.for.testing <- format(proportion.correct[50])
+fifth.percentile <- quantile.columns(likes.t5.t5, likes.t5.normal, max.samples=250, bootstrap.rows=1000, seed=5)
+q5.50.for.testing <- format(fifth.percentile[50])
+roi <- region.of.interest(likes.t5.t5, likes.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+eq <- estimated.quantiles(likes.t5.t5, likes.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+needed <- samples.needed(likes.t5.t5, likes.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+@ 
+<<repeatqr, warning=F, cache=T, include=F>>=
+qr.reps <- repeated.estimates(reps=100, seed=2, 
+                              quantile.regression=TRUE)
+@ 
+<<repeatslr, echo=F, warning=F, cache=T, include=F>>=
+slr.reps <- repeated.estimates(reps=100, seed=2, 
+                              quantile.regression=FALSE)
+@
+<<<repeatbb, echo=F, warning=F, cache=T, include=F>>=
+bb.reps <- baseball.repeated.estimates(reps=6, seed=2,
+                               quantile.regression=FALSE)
+@ 
+<<estimators, echo=F>>=
+qr.label <- rep('quantreg::rq()',length(qr.reps))
+sl.label <- rep('quantile(); lm()',length(slr.reps))
+label <- rbind(cbind(qr.label),cbind(sl.label))
+colnames(label) <- 'label'
+estimator <- rbind(cbind(qr.reps),cbind(slr.reps))
+colnames(estimator) <- 'estimator'
+df.estimators <- data.frame(estimator, label)
+@ 
+<<getrangeofestimate, echo=F>>=
+# QUANTILES THEN SIMPLE LINEAR REGRESSION
+mean.slr <- round(mean(slr.reps))
+se.slr <- ceiling(sd(slr.reps)/sqrt(length(slr.reps)))
+number.of.outliers.slr <- sum(slr.reps < 100)
+outlier.cutoff <- 100
+slr.reps.na <- slr.reps
+slr.reps.na[slr.reps<outlier.cutoff] = NA
+mean.slr.na <- round(mean(slr.reps.na, na.rm=TRUE))
+se.slr.na <- ceiling(sd(slr.reps.na, na.rm=TRUE)/length(slr.reps.na[!is.na(slr.reps.na)]))
+# QUANTILE REGRESSION
+mean.qr <- round(mean(qr.reps))
+se.qr <- ceiling(sd(qr.reps)/sqrt(length(qr.reps)))
+# BASEBALL
+mean.bb <- round(mean(bb.reps))
+se.bb <- ceiling(sd(bb.reps)/sqrt(length(bb.reps)))
 @ 
 <<tests,echo=F,include=F,cache=F>>=
 stopifnot(number.of.transient.states == 24)
@@ -115,7 +174,23 @@ stopifnot(number.of.nonrare.half.innings == 9)
 stopifnot(identical(probability.nonrare,'0.56'))
 stopifnot(percentage.rare==44)
 stopifnot(identical(sample.from.t,"-0.6576941"))
+stopifnot(identical(bottom.right.for.testing,"-0.4206254"))
+stopifnot(identical(prop.50.for.testing,"0.819"))
+stopifnot(identical(q5.50.for.testing,"-1.606729"))
+stopifnot(identical(format(qr.reps[100]),"126.849"))
+stopifnot(identical(format(slr.reps[100]),"124.6922"))
+stopifnot(identical(format(bb.reps[6]),"29.79542"))
+stopifnot(mean.slr == 125)
+stopifnot(se.slr == 2)
+stopifnot(number.of.outliers.slr == 2)
+stopifnot(mean.slr.na == 126)
+stopifnot(se.slr.na == 1)
+stopifnot(mean.qr == 128)
+stopifnot(se.qr == 1)
+stopifnot(mean.bb == 30)
+stopifnot(se.bb == 1)
 @ 
+
 \section{Motivation}
 When working with two or more probabilistic models, you may want to
 quantify their similarity.  Specifically, when observing simulations
@@ -183,7 +258,14 @@ League play.
 transitions <- TransitionNameVector()
 frequencies <- TransitionCountVector(data2011C)
 set.seed(2)
+require(wordcloud)
 wordcloud(transitions,frequencies,min.freq=1)
+@ 
+
+<<wordcloudhalfinnings, echo=F, fig.cap='Most common half-innings, as predicted from transition probabilities fit with 2011 Major League season data, arranged randomly, and sized according to predicted frequency of occurrence.  Half-innings with predicted probabilities less than 0.01 are lumped together as ``Rare Half Innings."'>>=
+set.seed(3)
+require(wordcloud)
+wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
 @ 
 
 We can then define a
@@ -283,12 +365,6 @@ the sum finite, but still, the fact that individual half-innings have
 such low probabilities is made up for by the fact that there are so
 many of them.
 
-<<wordcloudhalfinnings, echo=F, fig.cap='Most common half-innings, as predicted from transitions probabilities fit with 2011 Major League season data, arranged randomly, and sized according to predicted frequency of occurrence.  Half-innings with predicted probabilities less than 0.01 are lumped together as "Rare Half Innings."'>>=
-set.seed(3)
-wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
-@ 
-
-
 For a second example, we use the student t-distribution.  Instead of
 600 transition probabilities, t-distributions have a single parameter:
 the degrees of freedom.  Our true model will be a t-distribution with
@@ -305,11 +381,34 @@ step grasps the likelihoods of the different possibilities.  For the
 t-distributions, the simplicity of the sample space allows you to plot
 the likelihood (on the vertical axis) against the sample (on the
 horizontal axis) which shows the graph of the so-called probability
-density function (Figure ??).  This graph for N(0,1) is just the
-familiar {\em bell curve}; the graphs for the other t-distributions
-appear nearly indistinguishable from the one for N(0,1), but they are
-slightly warped bells, as described below.
+density function (Figure \ref{fig:densities}).  This graph for N(0,1)
+is just the familiar {\em bell curve}; the graphs for the other
+t-distributions appear nearly indistinguishable from the one for
+N(0,1), but they are slightly warped bells, as described below.
 
+<<densities, message=F, echo=F, fig.cap='Selecting a model with only one data point: the probability density functions of the t(5) and N(0,1) distributions.  Assuming the t(5) distribution generates the data point, the correct selection will be made only if this data point falls in the tails of the distribution (shown with green shading), otherwise, more likely, the incorrect selection of N(0,1) is made (shown with yellow shading).  Improving the odds of a correct selection requires many more data points.'>>=
+library(ggplot2)
+dcurve5 <- function(x) {return(dt(x,df=5))}
+dcurveinf <- function(x) {return(dt(x,df=Inf))}
+densitydiff <- function(x) {return(dt(x,df=5) - dt(x,df=Inf))}
+intersect1 <- uniroot(densitydiff, c(-2, -1))
+intersect2 <- uniroot(densitydiff, c(1, 2))
+I5greater <- function(x) {return (0.425*(abs(x) > intersect2$root))}
+Iinfgreater <- function(x) {return (0.425*(abs(x) <= intersect2$root))}
+ggplot(data.frame(x=c(-3,3)),aes(x=x)) +
+    stat_function(fun = dcurve5, aes(color="t(5)"),size=1.3) + 
+    stat_function(fun = dcurveinf, aes(color="N(0,1)"),size=1.3) +
+    xlab("Sample Data Point") + ylab("Probability Density") +
+    scale_color_manual("PDFs:", values = c("t(5)"="red", "N(0,1)"="blue")) +
+    geom_area(stat="function",fun=dcurve5,fill="red",alpha=I(.3),xlim = c(-3,3)) + 
+    geom_area(stat="function",fun=dcurveinf,fill="blue",alpha=I(.2),xlim=c(-3,3)) + 
+    geom_area(stat="function",fun=I5greater,fill="green",alpha=I(.15),xlim=c(-3,3)) +
+    geom_area(stat="function",fun=Iinfgreater,fill="yellow",alpha=I(.15),xlim=c(-3,3)) +
+    coord_cartesian(xlim = c(-3,3), ylim = c(0,0.425)) +
+    annotate("text", x=-2.4 ,y=0.4125, label="Correct\nSelection") +
+    annotate("text", x=0 ,y=0.4125, label="Incorrect Selection") +
+    annotate("text", x=intersect2$root+.6 ,y=0.4125, label="Correct\nSelection")
+@ 
 For all t-distributions, the most likely sample is 0, which appears as
 the peak of the bell.  Away from 0, the likelihood drops off into
 symmetric tails that extend to infinity in both directions.  Just as
@@ -406,68 +505,136 @@ means at least one transition probability must be different.
 \section{Computing The Samples Needed}
 
 I use a brute force Monte Carlo technique.  Specifically, I compute a
-matrix of sums of log-likelihood ratios.  The first column contains
-single log-likelihood ratios; the second contains sums of two; the
-third contains sums of three; and so on.  The entries in the matrix
-derive from independent random samples, and independence holds across
-rows, as well.  For large enough matrices, the computational
-requirements can be prohibitive, so to economize, I compute a smaller
-number of samples than needed, together with their log-likelihood
-ratios, then use a bootstrap (random resampling with replacement) to
-fill in the matrix.  This procedure introduces a bias, but one
-controlled by adjusting the number of samples available in the
-bootstrap population.
+table of sums of log-likelihood ratios (Table
+\ref{tab:bootstraptable}).  The first column contains single
+log-likelihood ratios; the second contains sums of two; the third
+contains sums of three; and so on.  The entries in the table derive
+from independent random samples, and independence holds across rows,
+as well.  For large enough matrices, the computational requirements
+can be prohibitive, so to economize, I compute a smaller number of
+samples than needed, together with their log-likelihood ratios, then
+use a bootstrap (random resampling with replacement) to fill in the
+table.  This procedure introduces a bias, but one controlled by
+adjusting the number of samples available in the bootstrap population.
 
-Once I compute the matrix, I can compute the proportion of entries in
-each column that are positive (indicating a correct selection).  The
-column number indicates how many samples are used for the selection,
-so the column number for which this proportion crosses the chosen
-confidence level (e.g.\ 0.95) {\em should} be my answer.  With
-finitely many samples, however, this crossing is not well defined
-because the proportion varies randomly, and in a way that varies
-across columns.  As a result, there appears a region, which I call the
-{\em region of interest}, where the desired crossing occurs many
-times.
+\begin{table}
+  \label{tab:bootstraptable}
+  \caption{The bootstrap table: each entry in the table is the sum of
+    log-likelihood ratios computed from samples bootstrapped from a
+    large population drawn from the true model.  A single log-likelihood
+    ratio is the log of the ratio of the probability density of the
+    true model at the sample, to the probability density of the
+    alternative model at the sample.  The sum of a number of
+    log-likelihood ratios is the log-likelihood ratio of that ensemble.}
+<<table.of.bootstrap, echo=F>>=
+colnames(bootstrap.table) <- c("One single", "Sum of 2", "Sum of 3", "Sum of 4", "Sum of 5")
+rownames(bootstrap.table) <- c("Repetition 1","Repetition 2","Repetition 3","Repetition 4","Repetition 5","Repetition 6","Repetition 7")
+kable(bootstrap.table)
+@ 
+\end{table}
 
+<<proportioncorrect, echo=F, fig.cap='The proportion correct in each column of a bootstrap table with 1000 rows and 250 columns.  The bootstrap population size is 200,000. The column number is the sample size used to make the selection (horizontal axis).  The proportion correct (vertical axis) is the ratio of the number positive entries in each column (indicating the number of correct selections) to the total number of rows.  Thus each proportion correct is necessarily a multiple of the reciprocal of the number of rows in the table.'>>=
+constant95 <- function() {return(0.95)}
+ggplot(data.frame(Sample.Size=x.range,Proportion.Correct=proportion.correct), aes(x=Sample.Size, y=Proportion.Correct)) +
+    geom_point() + geom_hline(yintercept = 0.95, color="red") +
+    xlab("Sample Size") + ylab("Proportion Correct") + 
+    annotate("rect", xmin=1, xmax=250, ymin=0, ymax=0.95, fill="yellow", alpha=I(0.15)) +
+    annotate("rect", xmin=1, xmax=250, ymin=0.95, ymax=1, fill="green", alpha=I(0.15)) +
+    annotate("text", x=50, y=0.98, label="More than 95% confident") + 
+    annotate("text", x=175, y=0.92, label="Less than 95% confident")
+@
+% 
+<<fifthpercentile, echo=F, fig.cap='The fifth percentile (vertical axis) of the log-likelihood ratio within each column of a bootstrap matrix with 1000 rows and 250 column.  The bootstrap population size is 200,000.  The column number is the sample size (horizontal axis) of the ensemble used to compute each log-likelihood ratio in the column.'>>=
+ggplot(data.frame(Sample.Size=x.range,Fifth.Percentile=fifth.percentile), aes(x=Sample.Size, y=Fifth.Percentile)) +
+    geom_point() + geom_hline(yintercept = 0, color="red") +
+    xlab("Sample Size") + ylab("Fifth Percentile") +
+    annotate("rect", xmin=1, xmax=250, ymin=-2.5, ymax=0, fill="yellow", alpha=I(0.15)) +
+    annotate("rect", xmin=1, xmax=250, ymin=0, ymax=6.3, fill="green", alpha=I(0.15)) +
+    annotate("text", x=50, y=.3, label="More than 95% confident") +
+    annotate("text", x=200, y=-.3, label="Less than 95% confident")
+@ 
+<<roiplot, echo=F, fig.cap='The region of interest (zoom in) of the fifth percentile plot (from Figure \ref{fig:fifthpercentile}).  I define the region of interest to include the last sample before the first zero-crossing, and at the first sample after the last crossing, as well as everything in between, but nothing else.  The blue line is the linear least-squares regression line for the data in this region, the green arrow points to the estimate of the number of samples needed for 95\% confidence.'>>=
+first <- roi$samples[1]
+last <- roi$samples[length(roi$samples)]
+ggplot(data=data.frame(Sample.Size=roi$samples,Fifth.Percentile=roi$quantiles, Best.Fit=eq$est.quantiles), aes(x=Sample.Size)) +
+    geom_point(aes(y=Fifth.Percentile)) +
+    geom_line(aes(y=Best.Fit), color="blue") +
+    xlab("Sample Size") + ylab("Fifth Percentile") +
+    geom_hline(yintercept = 0, color="red") +
+    annotate("rect", xmin=first, xmax=last, ymin=-.8, ymax=0, fill="yellow", alpha=I(0.15)) +
+    annotate("rect", xmin=first, xmax=last, ymin=0, ymax=1.1, fill="green", alpha=I(0.15)) +
+    annotate("text", x=first+5, y=1, label="More than 95% confident") +
+    annotate("text", x=last-5, y=-.7, label="Less than 95% confident") +
+    annotate("segment", x=needed, xend=needed, y=-0.4, yend=-0.025, color="darkgreen", alpha=I(.6), arrow=arrow()) +
+    annotate("text", x=needed+5, y=-0.4, color="darkgreen", alpha=I(.6), label="Number of samples needed\nfor 95% confidence")
+@
+<<estimatorsviolin, echo=F, fig.cap='The caption.'>>=
+ggplot(df.estimators, aes(x=label,y=estimator)) + geom_violin() + geom_boxplot(width=0.1) +
+  xlab('Type of Regression') + ylab('Estimate') + 
+  theme(axis.text.x=element_text(size=15))
+@ 
+
+Once I compute the table, I can compute the proportion of entries in
+each column that are positive (each indicating a correct selection,
+Figure \ref{fig:proportioncorrect}).  The column number indicates how
+many samples are used for the selection, so the column number for
+which this proportion crosses the chosen confidence level (e.g.\ 0.95)
+{\em should} be my answer.  With finitely many samples, however, this
+crossing is not well defined because the proportion varies randomly,
+and in a way that varies across columns.  As a result, there appears a
+region, which I call the {\em region of interest}, where the desired
+crossing occurs many times.
+ 
 My first solution zooms in on the region of interest and performs a
 linear regression on the proportion correct to pinpoint an estimate
 where this proportion crosses the confidence level.  But this
 proportion must be a multiple of the reciprocal of the number of rows
-in the matrix.  Unfortunately, this discretization makes for poor
-regression.  So instead, I now work with quantiles.  For example, the
-proportion correct crosses 0.95 at the same place where the $5^{th}$
-percentile of the log-likelihood ratio crosses 0 (i.e.\ $\log(1)$, the
-threshold for the sum of the log-likelihood ratios to indicate a
-correct selection).  As before, the quantiles are random, in a way
-that varies across column, so again, we must zoom in on a region of
-interest and perform a regression.  But the quantiles are no longer
-discrete and the regression performs better.
-
+in the table.  Unfortunately, this discretization makes for poor
+regression.  So instead, I now work with quantiles (Figure
+\ref{fig:fifthpercentile}).  For example, the proportion correct
+crosses 0.95 at the same place where the $5^{th}$ percentile of the
+log-likelihood ratio crosses 0 (i.e.\ $\log(1)$, the threshold for the
+sum of the log-likelihood ratios to indicate a correct selection).  As
+before, the quantiles are random, in a way that varies across column,
+so again, we must zoom in on a region of interest and perform a
+regression (Figure \ref{fig:roiplot}).  But the quantiles are no
+longer discrete and the regression performs better.
+ 
 I have tried both simple linear regression (on the quantiles, with the
 R command lm()) and quantile regression (directly on the entries of
-the bootstrapped matrix, with the R command quantreg::rq()) both using
+the bootstrapped table, with the R command quantreg::rq()) both using
 default arguments, where possible.  A careful reading of the
 documentation does reveal fundamental differences between these two
-procedures, however, there was not a substantial difference in the
-quality of the estimates.  That said, computing the region of interest
-required the result of an intermediate step (the quantiles) which was
-not immediately available in rq().  Therefore, I prefer to use lm()
-because it computes the quantiles once, whereas when I use rq(), it
-computes them twice, which takes somewhat longer.
+procedures, however, there was there was not a substantial difference
+in the spread of the estimates (Figure \ref{fig:estimatorsviolin}).
+On one hand, the lm command occasionally fails, producing wrong or
+even nonsensical (negative, not shown) results.  However,
+unfortunately, the quantreg:rq() method takes longer: the computation
+also requires a region of interest which in turn requires duplicating
+an intermediate step (calculating the quantiles).
 
 \section{Results}
-I calculate that it takes $128 \pm 1$ samples from the t-distribution,
+Using the quantreg::rq() function, I calculate that it takes
+$\Sexpr{mean.qr} \pm \Sexpr{se.qr}$ samples from the t-distribution,
 with 5 degrees of freedom, to reject, with 95\% confidence, the
 statement that these samples come from the standard normal
-distribution.  This precise estimate took minutes (not hours) on a
-MacBook Pro.  On the other hand, I calculate that it takes $31 \pm 1$
-half-innings, simulated from the MLE model derived from the 2011
-Baltimore Orioles, batting at home, to reject, with 95\% confidence,
-the statment that these half-innings were sampled from the 2011 New
-York Yankees MLE model.  This calculation was somewhat faster.
+distribution (mean $\pm$ standard error, $\Sexpr{length(slr.reps)}$
+samples, shown in Figure \ref{fig:estimatorsviolin}).  There was only
+a slight difference with the lm() function:
+$\Sexpr{mean.slr} \pm \Sexpr{se.slr}$, (same sample size, and also
+shown in Figure \ref{fig:estimatorsviolin}).  After eliminating the
+two extreme outliers from the distribution, the result changes to
+$\Sexpr{mean.slr.na} \pm \Sexpr{se.slr.na}$.
+
+Each set of computations for a $\pm 1$ range of estimates took minutes
+(not hours) on a MacBook Pro.  On the other hand, I calculate that it
+takes $\Sexpr{mean.bb} \pm \Sexpr{se.bb}$ half-innings, simulated from
+the MLE model derived from the 2011 Baltimore Orioles, batting at
+home, to reject, with 95\% confidence, the statment that these
+half-innings were sampled from the 2011 New York Yankees MLE model.
+This calculation was somewhat faster and required only 6 samples.
 
 \section{Discussion}
- 
 One reason baseball teams are easier to distinguish than
 t-distributions involves the above mentioned properties of the MLE.
 Specifically, in a simulation of 10,000 of the Baltimore-at-bat
@@ -493,15 +660,15 @@ Kullback-Leibler divergence.  However, the unlike the Kullback-Leibler
 divergence, the proposed measure is discrete, and substantially harder to
 compute.
 
-\section{Acknowledgements}
+\section{Acknowledgements and Code}
 
 Rebeca Berger helped prepared the data for processing, and adapted
 code from the GitHub companion to \cite{marchi2013}:
-https://github.com/maxtoki/baseball\_R.  We provide our code to the
-public,  available at:
-https://github.com/seancarverphd/klir. Note that the first GitHub
-repository also contains the 2011 baseball data needed to run our code.
-\nocite{*}
+https://github.com/maxtoki/baseball\_R.  We provide our code, and the
+source for this paper, available at:
+https://github.com/seancarverphd/klir.  We use best practices for
+reproducible research.  Note that the first GitHub repository also
+contains the 2011 baseball data needed to run our code.  \nocite{*}
 
 % Use BibTeX
 \bibliographystyle{plain}
