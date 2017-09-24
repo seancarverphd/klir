@@ -546,14 +546,17 @@ adjusting the number of samples available in the bootstrap population.
 
 \begin{table}
   \label{tab:bootstraptable}
-  \caption{The bootstrap table: each entry is the sum of
-    log-likelihood ratios computed from samples bootstrapped from a
-    large population drawn from the true model.  A single log-likelihood
-    ratio is the log of the ratio of the probability density of the
+  \caption{The {\em bootstrap table}: each entry is the sum of
+    log-likelihood ratios computed from independent samples bootstrapped from a
+    large population drawn from the true model, t(5).  A single log-likelihood
+    ratio is the log of the quotient of the probability density of the
     true model at the sample, to the probability density of the
-    alternative model at the sample.  A The sum of a number of
-    log-likelihood ratios is the log-likelihood ratio of that ensemble.
-     The $k^{th}$ column contains the sum of $k$ log-liki.}
+    alternative model, N(0,1), at the sample.  The sum of a number of
+    log-likelihood ratios is the log-likelihood ratio of that ensemble
+ of 
+    The $k^{th}$ column contains the sum of $k$ log-likelihood
+    ratio.  A positive entry indicates a correct selection with the
+    corresponding ensemble.}
 <<table.of.bootstrap, echo=F>>=
 colnames(bootstrap.table) <- c("One single", "Sum of 2", "Sum of 3", "Sum of 4", "Sum of 5")
 rownames(bootstrap.table) <- c("Repetition 1","Repetition 2","Repetition 3","Repetition 4","Repetition 5","Repetition 6","Repetition 7")
