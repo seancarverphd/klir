@@ -105,7 +105,7 @@ samples.needed(likes.t5.t5, likes.t5.normal,
 ```{r repssetup}
 source('reps.R')
 ```
-```{r repeated, echo=TRUE}
+```{r repeated, echo=TRUE, cache=TRUE}
 repeated.estimates(reps=6, seed=1)
 ```
 - Occasionally, the method fails and leads to nonsensical results, but it is easy to spot those estimates.
