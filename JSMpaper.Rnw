@@ -289,7 +289,7 @@ set.seed(2)
 require(wordcloud)
 wordcloud(transitions,frequencies,min.freq=1)
 @ 
-<<wordcloudhalfinnings, message=F, echo=F, fig.cap='Most common half-innings, as predicted from transition probabilities fit with 2011 Major League season data, arranged randomly, and sized according to predicted frequency of occurrence.  Half-innings with predicted probabilities less than 0.01 are lumped together as ``Rare Half Innings.  With no cap on the score, there are infinitely many rare half innings.'>>=
+<<wordcloudhalfinnings, message=F, echo=F, fig.cap='Most common half-innings, as predicted from transition probabilities fit with 2011 Major League season data, arranged randomly, and sized according to predicted frequency of occurrence.  Half-innings with predicted probabilities less than 0.01 are lumped together as ``Rare Half Innings.  With no cap on the score, there are infinitely many such rare half innings.'>>=
 set.seed(3)
 require(wordcloud)
 wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
@@ -308,7 +308,8 @@ probabilities will fall between 0 and 1---including perhaps dozens
 more zeros for any given team.  Twenty-four additional constraints
 (sums of the entries in each row equal 1) stem from the stipulation
 that, from each of the \Sexpr{number.of.transient.states} transient
-states (i.e.\ other than XXX), the game (or half-inning) must go on.
+states (i.e.\ other than XXX), the game (or half-inning) must go on
+with a single new state.
 
 To determine the values of these parameters for each team, the
 simplest method uses the so-called {\em maximum likelihood estimates}
@@ -526,35 +527,38 @@ central limit theorem, and a finite variance assumption, we can be
 sure we will, with any level of confidence short of certainty, select
 the true model, with enough samples, provided the two models make
 different predictions.  In other words, our test is {\em consistent}
-\cite{burnham2002}.  For two baseball models, different predictions
-means at least one transition probability must be different.
+\cite{burnham2002}.  For two baseball models, requiring that models
+make different predictions demands that at least one transition
+probability must be different.
 
 \section{Computing The Samples Needed}
 
 I use a brute force Monte Carlo technique.  Specifically, I compute a
-table of sums of log-likelihood ratios (Table
-\ref{tab:bootstraptable}).  The first column contains single
-log-likelihood ratios; the second contains sums of two; the third
-contains sums of three; and so on.  The entries in the table derive
-from independent random samples, and independence holds across rows,
-as well.  For large enough matrices, the computational requirements
-can be prohibitive, so to economize, I compute a smaller number of
-samples than needed, together with their log-likelihood ratios, then
-use a bootstrap (random resampling with replacement) to fill in the
-table.  This procedure introduces a bias, but one controlled by
-adjusting the number of samples available in the bootstrap population.
+table of sums of log-likelihood ratios (Table 1).  The first column
+contains single log-likelihood ratios; the second contains sums of
+two; the third contains sums of three; and so on.  The entries in the
+table derive from independent random samples, and independence holds
+across rows, as well.  For large enough matrices, the computational
+requirements can be prohibitive, so to economize, I compute a smaller
+number of samples than needed, together with their log-likelihood
+ratios, then use a bootstrap (random resampling with replacement) to
+fill in the table.  This procedure introduces a bias, but one
+controlled by adjusting the number of samples available in the
+bootstrap population.
 
 \begin{table}
   \label{tab:bootstraptable}
   \caption{The {\em bootstrap table}: each entry is the sum of
     log-likelihood ratios computed from independent samples bootstrapped from a
-    large population drawn from the true model, t(5).  A single log-likelihood
+    large population (in this case, size 200,000) drawn from the true model, t(5).  
+    A single log-likelihood
     ratio is the log of the quotient of the probability density of the
     true model at the sample, to the probability density of the
-    alternative model, N(0, 1), at the sample.  The sum of a number of 
+    alternative model, N(0, 1), at that same true-model sample.
+    The sum of a number of 
     these values, for an ensemble of independent samples, is 
-    the log-likelihood ratio of that ensemble.
-    The $k^{th}$ column contains the sum of $k$ log-likelihood
+    the log-likelihood ratio of that ensemble of samples.
+    The $k^{th}$ column contains the sum of $k$ of these log-likelihood
     ratios.  A positive entry indicates a correct selection with the
     corresponding ensemble.}
 <<table.of.bootstrap, echo=F>>=
@@ -564,7 +568,7 @@ kable(bootstrap.table)
 @ 
 \end{table}
 
-<<proportioncorrect, echo=F, fig.cap='The proportion correct in each column of a ``bootstrap table" with 1000 rows and 250 columns.  Each entry in this table contains the log-likelihood ratio of an ensemble of independent samples, bootstrapped from a large population.  The sample size used to make the selection equals the column number of the table (horizontal axis).  Rows contain independent samples. The bootstrap population size is 200,000.  The proportion correct (vertical axis) is the ratio of the number positive entries in each column (indicating the number of correct selections) to the total number of rows.  Thus each proportion correct is necessarily a multiple of the reciprocal of the number of rows in the table.'>>=
+<<proportioncorrect, echo=F, fig.cap='The proportion of correct selections from a ``bootstrap table" with 1000 rows and 250 columns), drawn from a bootstrap population of size 200,000 (see Table 1). The column number of the table equals the sample size used to make the selection (horizontal axis).  The proportion correct (vertical axis) is the ratio of the number positive entries in each column (each indicating a correct selection) to the total number of rows.  Thus each proportion correct is necessarily a multiple of the reciprocal of the number of rows in the table.  As the proportion correct crosses the value of 0.95, (boundary between yellow and green)the confidence level is deemed acceptable.'>>=
 constant95 <- function() {return(0.95)}
 ggplot(data.frame(Sample.Size=x.range,Proportion.Correct=proportion.correct), aes(x=Sample.Size, y=Proportion.Correct)) +
     geom_point() + geom_hline(yintercept = 0.95, color="red") +
@@ -575,7 +579,7 @@ ggplot(data.frame(Sample.Size=x.range,Proportion.Correct=proportion.correct), ae
     annotate("text", x=175, y=0.92, label="Less than 95% confident")
 @
 % 
-<<fifthpercentile, echo=F, fig.cap='The fifth percentile (vertical axis) of the log-likelihood ratio within each column of a bootstrap matrix with 1000 rows and 250 column.  The bootstrap population size is 200,000.  The column number is the sample size (horizontal axis) of the ensemble used to compute each log-likelihood ratio in the column.  The fifth percentile crosses zero (boundary between yellow and green) at the same place where the proportion correct crosses 0.95 (Figure \ref{fig:proportioncorrect}).'>>=
+<<fifthpercentile, echo=F, fig.cap='The fifth percentile (vertical axis) of the log-likelihood ratio within each column of a bootstrap table with 1000 rows and 250 columns, drawn from bootstrap population of size 200,000.  The column number of the table equals the sample size used to make the selection (horizontal axis).  The fifth percentile crosses zero (boundary between yellow and green) at the same place where the proportion correct crosses 0.95 (Figure \ref{fig:proportioncorrect}).'>>=
 ggplot(data.frame(Sample.Size=x.range,Fifth.Percentile=fifth.percentile), aes(x=Sample.Size, y=Fifth.Percentile)) +
     geom_point() + geom_hline(yintercept = 0, color="red") +
     xlab("Sample Size") + ylab("Fifth Percentile") +
@@ -584,7 +588,7 @@ ggplot(data.frame(Sample.Size=x.range,Fifth.Percentile=fifth.percentile), aes(x=
     annotate("text", x=50, y=.3, label="More than 95% confident") +
     annotate("text", x=200, y=-.3, label="Less than 95% confident")
 @ 
-<<roiplot, echo=F, fig.cap='The region of interest (zoom in) of the fifth percentile plot (from Figure \ref{fig:fifthpercentile}).  I define the region of interest to include the last sample before the first zero-crossing, and the first sample after the last crossing, as well as everything in between, but nothing else.  The blue line is the linear least-squares regression line for the data in this region, the green arrow points to the estimate of the number of samples needed for 95\% confidence.'>>=
+<<roiplot, echo=F, fig.cap='The region of interest (zoom in of Figure \ref{fig:fifthpercentile}).  I define the region of interest to include the last sample before the first zero-crossing, the first sample after the last crossing, and everything in between, but nothing else.  The blue line is the linear least-squares regression line for the data in this region, the dark green arrow points to the estimate of the number of samples needed for 95\% confidence.'>>=
 first <- roi$samples[1]
 last <- roi$samples[length(roi$samples)]
 ggplot(data=data.frame(Sample.Size=roi$samples,Fifth.Percentile=roi$quantiles, Best.Fit=eq$est.quantiles), aes(x=Sample.Size)) +
@@ -597,9 +601,9 @@ ggplot(data=data.frame(Sample.Size=roi$samples,Fifth.Percentile=roi$quantiles, B
     annotate("text", x=first+5, y=1, label="More than 95% confident") +
     annotate("text", x=last-5, y=-.7, label="Less than 95% confident") +
     annotate("segment", x=needed, xend=needed, y=-0.4, yend=-0.025, color="darkgreen", alpha=I(.6), arrow=arrow()) +
-    annotate("text", x=needed+5, y=-0.4, color="darkgreen", alpha=I(.6), label="Number of samples needed\nfor 95% confidence")
+    annotate("text", x=needed+5, y=-0.4, color="darkgreen", label="Number of samples needed\nfor 95% confidence")
 @
-<<estimatorsviolin, echo=F, fig.cap='Distribution of the estimator of the number of samples needed to correctly reject N(0, 1) in favor of the correctly specified t(5) model.  Shown are violin and box plots for two alternative methods of computing the estimate.  Left: simple linear regression on the fifth percentile of the log-likelihood ratio.  The procedure shown in Figure \ref{fig:fifthpercentile} (left) occasionally produces extreme outliers.  Right: quantile regression with the R function quantreg::rq() applied to the same data.'>>=
+<<estimatorsviolin, echo=F, fig.cap='Distribution of the estimator of the number of samples needed to correctly reject N(0, 1) in favor of the correctly specified t(5) model.  Shown are violin and box plots for two alternative methods of computing the estimate.  Left: simple linear regression on the fifth percentile of the log-likelihood ratio.  This procedure, shown in Figure \ref{fig:fifthpercentile}, occasionally produces extreme outliers.  Right: quantile regression with the R function quantreg::rq() applied to the same data.'>>=
 ggplot(df.estimators, aes(x=label,y=estimator)) + geom_violin() + geom_boxplot(width=0.1) +
   xlab('Type of Regression') + ylab('Estimate') + 
   theme(axis.text.x=element_text(size=15))
@@ -616,7 +620,7 @@ and in a way that varies across columns.  As a result, there appears a
 region, which I call the {\em region of interest}, where the desired
 crossing occurs many times.
  
-My first solution zooms in on the region of interest and performs a
+My first solution zooms in on this region of interest and performs a
 linear regression on the proportion correct to pinpoint an estimate
 where this proportion crosses the confidence level.  But this
 proportion must be a multiple of the reciprocal of the number of rows
@@ -665,8 +669,8 @@ reject, with 95\% confidence, the statement that these half-innings
 were sampled from the 2011 New York Yankees MLE model.  
 
 The computations for the t distributions, each with a $\pm 1$ range
-for the estimates, took 6 minutes and 12 minutes on a MacBook Pro, for
-respectively, the lm() method and the quantreg::rq() method.  The
+for the estimates, took 6 minutes and 12 minutes on a MacBook Pro,
+for, respectively, the lm() method, and the quantreg::rq() method.  The
 duration of the baseball computations fell within that same range.
 The baseball calculation required averaging only
 $\Sexpr{length(bb.reps)}$ estimates, but each estimate took longer to
