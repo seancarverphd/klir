@@ -534,20 +534,19 @@ probability must be different.
 \section{Computing The Samples Needed}
 
 I use a brute force Monte Carlo technique.  Specifically, I compute a
-table of sums of log-likelihood ratios (Table 1).  The first column
-contains single log-likelihood ratios; the second contains sums of
-two; the third contains sums of three; and so on.  The entries in the
-table derive from independent random samples, and independence holds
-across rows, as well.  For large enough matrices, the computational
-requirements can be prohibitive, so to economize, I compute a smaller
-number of samples than needed, together with their log-likelihood
-ratios, then use a bootstrap (random resampling with replacement) to
-fill in the table.  This procedure introduces a bias, but one
-controlled by adjusting the number of samples available in the
-bootstrap population.
+table of sums of log-likelihood ratios (Table
+\ref{tab:bootstraptable}).  The first column contains single
+log-likelihood ratios; the second contains sums of two; the third
+contains sums of three; and so on.  The entries in the table derive
+from independent random samples, and independence holds across rows,
+as well.  For large enough matrices, the computational requirements
+can be prohibitive, so to economize, I compute a smaller number of
+samples than needed, together with their log-likelihood ratios, then
+use a bootstrap (random resampling with replacement) to fill in the
+table.  This procedure introduces a bias, but one controlled by
+adjusting the number of samples available in the bootstrap population.
 
 \begin{table}
-  \label{tab:bootstraptable}
   \caption{The {\em bootstrap table}: each entry is the sum of
     log-likelihood ratios computed from independent samples bootstrapped from a
     large population (in this case, size 200,000) drawn from the true model, t(5).  
@@ -561,6 +560,7 @@ bootstrap population.
     The $k^{th}$ column contains the sum of $k$ of these log-likelihood
     ratios.  A positive entry indicates a correct selection with the
     corresponding ensemble.}
+  \label{tab:bootstraptable}
 <<table.of.bootstrap, echo=F>>=
 colnames(bootstrap.table) <- c("One single", "Sum of 2", "Sum of 3", "Sum of 4", "Sum of 5")
 rownames(bootstrap.table) <- c("Repetition 1","Repetition 2","Repetition 3","Repetition 4","Repetition 5","Repetition 6","Repetition 7")
@@ -568,21 +568,21 @@ kable(bootstrap.table)
 @ 
 \end{table}
 
-<<proportioncorrect, echo=F, fig.cap='The proportion of correct selections from a ``bootstrap table" with 1000 rows and 250 columns), drawn from a bootstrap population of size 200,000 (see Table 1). The column number of the table equals the sample size used to make the selection (horizontal axis).  The proportion correct (vertical axis) is the ratio of the number positive entries in each column (each indicating a correct selection) to the total number of rows.  Thus each proportion correct is necessarily a multiple of the reciprocal of the number of rows in the table.  As the proportion correct crosses the value of 0.95, (boundary between yellow and green)the confidence level is deemed acceptable.'>>=
+<<proportioncorrect, echo=F, fig.cap='The proportion of correct selections (vertical axis; indicated by the proportion of postive values within each column of a ``bootstrap table" with 1000 rows and 250 columns, drawn from a bootstrap population of size 200,000, see Table \ref{tab:bootstraptable}). The column number of the table indicates the sample size used to make the selection (horizontal axis).   Each proportion correct is necessarily a multiple of the reciprocal of the number of rows in the table.  As the proportion correct crosses the value of 0.95, (boundary between yellow and green), we deem the confidence level acceptable.'>>=
 constant95 <- function() {return(0.95)}
 ggplot(data.frame(Sample.Size=x.range,Proportion.Correct=proportion.correct), aes(x=Sample.Size, y=Proportion.Correct)) +
     geom_point() + geom_hline(yintercept = 0.95, color="red") +
-    xlab("Sample Size") + ylab("Proportion Correct") + 
+    xlab("Sample Size") + ylab("Proportion of Correct Selections") + 
     annotate("rect", xmin=1, xmax=250, ymin=0, ymax=0.95, fill="yellow", alpha=I(0.15)) +
     annotate("rect", xmin=1, xmax=250, ymin=0.95, ymax=1, fill="green", alpha=I(0.15)) +
     annotate("text", x=50, y=0.98, label="More than 95% confident") + 
     annotate("text", x=175, y=0.92, label="Less than 95% confident")
 @
 % 
-<<fifthpercentile, echo=F, fig.cap='The fifth percentile (vertical axis) of the log-likelihood ratio within each column of a bootstrap table with 1000 rows and 250 columns, drawn from bootstrap population of size 200,000.  The column number of the table equals the sample size used to make the selection (horizontal axis).  The fifth percentile crosses zero (boundary between yellow and green) at the same place where the proportion correct crosses 0.95 (Figure \ref{fig:proportioncorrect}).'>>=
+<<fifthpercentile, echo=F, fig.cap='The fifth percentile (vertical axis) of the log-likelihood ratio within each column of a ``bootstrap table" (with 1000 rows and 250 columns, drawn from bootstrap population of size 200,000, see Table \ref{tab:bootstraptable}).  The column number of the table equals the sample size used to make the selection (horizontal axis).  The fifth percentile crosses zero (boundary between yellow and green) at the same place where the proportion correct crosses 0.95---where we deem the confidence level acceptable (Figure \ref{fig:proportioncorrect}).'>>=
 ggplot(data.frame(Sample.Size=x.range,Fifth.Percentile=fifth.percentile), aes(x=Sample.Size, y=Fifth.Percentile)) +
     geom_point() + geom_hline(yintercept = 0, color="red") +
-    xlab("Sample Size") + ylab("Fifth Percentile") +
+    xlab("Sample Size") + ylab("Fifth Percentile of the Log-likelihood Ratio") +
     annotate("rect", xmin=1, xmax=250, ymin=-2.5, ymax=0, fill="yellow", alpha=I(0.15)) +
     annotate("rect", xmin=1, xmax=250, ymin=0, ymax=6.3, fill="green", alpha=I(0.15)) +
     annotate("text", x=50, y=.3, label="More than 95% confident") +
