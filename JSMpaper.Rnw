@@ -282,7 +282,7 @@ the runner on first would have scored---clearly an unusual scenario,
 but not impossible: both 1:1 and 1XX:1XX did occur in 2011 Major
 League play.
 
-<<wordcloudtransitions, message=F, echo=F, fig.cap='The baseball state transitions that occurred throughout the 2011 Major League season, arranged randomly, and sized according to their frequency of occurrence.  Additionally, there were 24 transitions that were possible, according to the rules of baseball, but that never occurred in 2011 Major League play (not shown).'>>=
+<<wordcloudtransitions, message=F, echo=F, fig.cap='The 272 baseball state transitions that occurred throughout the 2011 Major League season, arranged randomly, and sized according to their frequency of occurrence.  Additionally, there were 24 transitions that were possible, according to the rules of baseball, but that never occurred in 2011 Major League play (not shown).'>>=
 transitions <- TransitionNameVector()
 frequencies <- TransitionCountVector(data2011C)
 set.seed(2)
@@ -414,7 +414,7 @@ is just the familiar {\em bell curve}; the graphs for the other
 t-distributions appear nearly indistinguishable from the one for
 N(0, 1), but they are slightly warped bells, as described below.
 
-<<densities, message=F, echo=F, fig.cap='Selecting a model with only one data point: the probability density functions of the t(5) and N(0, 1) distributions.  Assuming the t(5) distribution generates the data point, the correct selection will be made only if this data point falls in the tails of the distribution (shown with green shading), otherwise, more likely, the incorrect selection of N(0, 1) is made (shown with yellow shading).  Improving the odds of a correct selection requires many more data points.'>>=
+<<densities, message=F, echo=F, fig.cap='Selecting a model with only one data point: the probability density functions of the t(5) and N(0, 1) distributions.  Assuming the t(5) distribution generates the data point, the correct selection will be made only if this data point falls in the tails of the distribution (shown with green shading), otherwise, more likely, the incorrect selection of N(0, 1) is made (shown with yellow shading).  Improving the odds of a correct selection requires more data points.'>>=
 library(ggplot2)
 dcurve5 <- function(x) {return(dt(x,df=5))}
 dcurveinf <- function(x) {return(dt(x,df=Inf))}
@@ -539,7 +539,7 @@ table of sums of log-likelihood ratios (Table
 log-likelihood ratios; the second contains sums of two; the third
 contains sums of three; and so on.  The entries in the table derive
 from independent random samples, and independence holds across rows,
-as well.  For large enough matrices, the computational requirements
+as well.  For large tables, the computational requirements
 can be prohibitive, so to economize, I compute a smaller number of
 samples than needed, together with their log-likelihood ratios, then
 use a bootstrap (random resampling with replacement) to fill in the
@@ -549,7 +549,7 @@ adjusting the number of samples available in the bootstrap population.
 \begin{table}
   \caption{The {\em bootstrap table}: each entry is the sum of
     log-likelihood ratios computed from independent samples bootstrapped from a
-    large population (in this case, size 200,000) drawn from the true model, t(5).  
+    large population (size 200,000) drawn from the true model, t(5).  
     A single log-likelihood
     ratio is the log of the quotient of the probability density of the
     true model at the sample, to the probability density of the
@@ -557,9 +557,10 @@ adjusting the number of samples available in the bootstrap population.
     The sum of a number of 
     these values, for an ensemble of independent samples, is 
     the log-likelihood ratio of that ensemble of samples.
-    The $k^{th}$ column contains the sum of $k$ of these log-likelihood
-    ratios.  A positive entry indicates a correct selection with the
-    corresponding ensemble.}
+    Each entry of the $k^{th}$ column of the table contains
+    the sum of $k$ of these log-likelihood
+    ratios.  A positive entry indicates a correct selection of t(5)
+    over N(0, 1), based on the corresponding ensemble.}
   \label{tab:bootstraptable}
 <<table.of.bootstrap, echo=F>>=
 colnames(bootstrap.table) <- c("One single", "Sum of 2", "Sum of 3", "Sum of 4", "Sum of 5")
@@ -568,7 +569,7 @@ kable(bootstrap.table)
 @ 
 \end{table}
 
-<<proportioncorrect, echo=F, fig.cap='The proportion of correct selections (vertical axis; indicated by the proportion of postive values within each column of a ``bootstrap table" with 1000 rows and 250 columns, drawn from a bootstrap population of size 200,000, see Table \ref{tab:bootstraptable}). The column number of the table indicates the sample size used to make the selection (horizontal axis).   Each proportion correct is necessarily a multiple of the reciprocal of the number of rows in the table.  As the proportion correct crosses the value of 0.95, (boundary between yellow and green), we deem the confidence level acceptable.'>>=
+<<proportioncorrect, echo=F, fig.cap='The proportion of correct selections (vertical axis) indicated by the proportion of positive values within each column of a ``bootstrap table" (with 1000 rows and 250 columns, bootstrapped from a population of size 200,000, see Table \ref{tab:bootstraptable}). The proportion of correct selections is plotted against the sample size (horizontal axis; varying across columns of the table).   Each proportion correct is necessarily a multiple of the reciprocal of the number of rows in the table.  As the proportion correct crosses the value of 0.95, (boundary between yellow and green shading), we deem the confidence level acceptable.'>>=
 constant95 <- function() {return(0.95)}
 ggplot(data.frame(Sample.Size=x.range,Proportion.Correct=proportion.correct), aes(x=Sample.Size, y=Proportion.Correct)) +
     geom_point() + geom_hline(yintercept = 0.95, color="red") +
@@ -579,16 +580,16 @@ ggplot(data.frame(Sample.Size=x.range,Proportion.Correct=proportion.correct), ae
     annotate("text", x=175, y=0.92, label="Less than 95% confident")
 @
 % 
-<<fifthpercentile, echo=F, fig.cap='The fifth percentile (vertical axis) of the log-likelihood ratio within each column of a ``bootstrap table" (with 1000 rows and 250 columns, drawn from bootstrap population of size 200,000, see Table \ref{tab:bootstraptable}).  The column number of the table equals the sample size used to make the selection (horizontal axis).  The fifth percentile crosses zero (boundary between yellow and green) at the same place where the proportion correct crosses 0.95---where we deem the confidence level acceptable (Figure \ref{fig:proportioncorrect}).'>>=
+<<fifthpercentile, echo=F, fig.cap='The fifth percentile of the log-likelihood ratios (vertical axis) within each column of a ``bootstrap table" (with 1000 rows and 250 columns, bootstrapped from a population of size 200,000, see Table \ref{tab:bootstraptable}).  The fifth percentile is plotted against the sample size (horizontal axis; varying across columns of the table).  The fifth percentile crosses zero (the boundary between the yellow and green shading) at the same place where the proportion correct crosses 0.95, and where we deem the confidence level acceptable (green shading, see also Figure \ref{fig:proportioncorrect}).'>>=
 ggplot(data.frame(Sample.Size=x.range,Fifth.Percentile=fifth.percentile), aes(x=Sample.Size, y=Fifth.Percentile)) +
     geom_point() + geom_hline(yintercept = 0, color="red") +
-    xlab("Sample Size") + ylab("Fifth Percentile of the Log-likelihood Ratio") +
+    xlab("Sample Size") + ylab("Fifth Percentile of the Log-likelihood Ratios") +
     annotate("rect", xmin=1, xmax=250, ymin=-2.5, ymax=0, fill="yellow", alpha=I(0.15)) +
     annotate("rect", xmin=1, xmax=250, ymin=0, ymax=6.3, fill="green", alpha=I(0.15)) +
     annotate("text", x=50, y=.3, label="More than 95% confident") +
     annotate("text", x=200, y=-.3, label="Less than 95% confident")
 @ 
-<<roiplot, echo=F, fig.cap='The region of interest (zoom in of Figure \ref{fig:fifthpercentile}).  I define the region of interest to include the last sample before the first zero-crossing, the first sample after the last crossing, and everything in between, but nothing else.  The blue line is the linear least-squares regression line for the data in this region, the dark green arrow points to the estimate of the number of samples needed for 95\% confidence.'>>=
+<<roiplot, echo=F, fig.cap='The region of interest (zoom-in of Figure \ref{fig:fifthpercentile}).  I define the region of interest to include the last sample before the first zero-crossing, the first sample after the last zero-crossing, all samples in between, but nothing else.  The blue line is the linear least-squares regression line for the data in this region, the dark green arrow points to the estimate of the number of samples needed for 95\% confidence.'>>=
 first <- roi$samples[1]
 last <- roi$samples[length(roi$samples)]
 ggplot(data=data.frame(Sample.Size=roi$samples,Fifth.Percentile=roi$quantiles, Best.Fit=eq$est.quantiles), aes(x=Sample.Size)) +
@@ -600,7 +601,7 @@ ggplot(data=data.frame(Sample.Size=roi$samples,Fifth.Percentile=roi$quantiles, B
     annotate("rect", xmin=first, xmax=last, ymin=0, ymax=1.1, fill="green", alpha=I(0.15)) +
     annotate("text", x=first+5, y=1, label="More than 95% confident") +
     annotate("text", x=last-5, y=-.7, label="Less than 95% confident") +
-    annotate("segment", x=needed, xend=needed, y=-0.4, yend=-0.025, color="darkgreen", alpha=I(.6), arrow=arrow()) +
+    annotate("segment", x=needed, xend=needed, y=-0.4, yend=-0.025, color="darkgreen", arrow=arrow()) +
     annotate("text", x=needed+5, y=-0.4, color="darkgreen", label="Number of samples needed\nfor 95% confidence")
 @
 <<estimatorsviolin, echo=F, fig.cap='Distribution of the estimator of the number of samples needed to correctly reject N(0, 1) in favor of the correctly specified t(5) model.  Shown are violin and box plots for two alternative methods of computing the estimate.  Left: simple linear regression on the fifth percentile of the log-likelihood ratio.  This procedure, shown in Figure \ref{fig:fifthpercentile}, occasionally produces extreme outliers.  Right: quantile regression with the R function quantreg::rq() applied to the same data.'>>=
@@ -642,12 +643,14 @@ default arguments, where possible.  A careful reading of the
 documentation does reveal fundamental differences between these two
 procedures, however, there was there was not a substantial difference
 in the spread of the estimates (Figure \ref{fig:estimatorsviolin}).
-On one hand, the lm() command occasionally fails, producing wrong or
-even nonsensical (negative, not shown) results.  However,
-unfortunately, the quantreg:rq() method takes almost twice as long.
-Indeed, while both methods require the computation of a region of
-interest, quantreg::rq() must duplicate the intermediate step of
-calculating the quantiles.
+On one hand, the lm() command occasionally fails, producing extreme
+outliers, or even nonsensical results (negative values for number of
+samples needed, not shown).  The alternative, quantreg::rq() performed
+better in this regard, however the computations take almost twice as
+long.  Indeed, using quantreg::rq() requires duplicating the
+intermediate step of calculating the quantiles---once to compute the
+region of interest, and once to perform the regression.  Using lm() is
+more economical, in this regard.
 
 \section{Results}
 Using the quantreg::rq() function, I calculate that it takes
@@ -668,7 +671,7 @@ MLE model derived from the 2011 Baltimore Orioles, batting at home, to
 reject, with 95\% confidence, the statement that these half-innings
 were sampled from the 2011 New York Yankees MLE model.  
 
-The computations for the t distributions, each with a $\pm 1$ range
+The computations for the t-distributions, each giving a $\pm 1$ range
 for the estimates, took 6 minutes and 12 minutes on a MacBook Pro,
 for, respectively, the lm() method, and the quantreg::rq() method.  The
 duration of the baseball computations fell within that same range.
@@ -683,7 +686,7 @@ Specifically, in a simulation of \Sexpr{pretty.sample.size}
 Baltimore-at-bat half-innings, it was discovered that just under
 \Sexpr{rounded.percent.never.for.nya}\% had not ever occurred for the
 Yankees while batting in their New York home stadium in 2011.  If one
-of these half-innings occurs in a set of Baltimore at bat samples, the
+of these half-innings occurs in a set of Baltimore-at-bat samples, the
 selection is immediately made for the true model, the Orioles.  At
 least one such half-inning is expected in approximately
 \Sexpr{rounded.percent.at.least.one.inf}\% of sequences of
@@ -705,16 +708,18 @@ divergence, the proposed measure is discrete, and substantially harder to
 compute.
 
 \section{Code}
-We provide code for our calculations, and source for this paper, using
-best practices for reproducible research at:
+I provide code for my calculations, and source for this paper, using
+best practices for reproducible research, at:
 https://github.com/seancarverphd/klir.  Note that the GitHub
 repository mentioned below in the acknowledgements contains the 2011
-baseball data needed to run our code.
+baseball data needed to run my code.  I have not added this large data
+set to my own GitHub repository.
 
 \section{Acknowledgements}
 Rebeca Berger helped prepared the data for processing, and adapted
-code from the GitHub companion to \cite{marchi2013}:
-https://github.com/maxtoki/baseball\_R.
+some code for this project from the GitHub companion to \cite{marchi2013}:
+https://github.com/maxtoki/baseball\_R.  Her adapted code is included with my
+own, at the GitHub address mentioned above in the Code section.
 
 \nocite{*}
 
