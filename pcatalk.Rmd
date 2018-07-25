@@ -1,0 +1,235 @@
+---
+title: "Baseball Markov Chains"
+author: "Sean G. Carver, Ph.D., Professorial Lecturer, American University"
+date: "September 11, 2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+```{r loadlong,echo=F,include=F,cache=T}
+source('simulation.R')
+```
+```{r loadshort,echo=F,include=F,cache=T}
+source('msbaseball.R')
+source('kli.R')
+source('wcloud.R')
+source('reps.R')
+```
+```{r count.transitions,echo=F,include=F,cache=T}
+number.of.transient.states <- 24
+number.of.states <- 25
+number.of.conceivable.transitions <- number.of.transient.states*number.of.states
+number.of.legal.transitions <- length(all.transitions())
+number.of.illegal.transitions <- number.of.conceivable.transitions - number.of.legal.transitions
+transition.counts.all.2011 <- CountMat(data2011C)
+transition.counts.bal.2011 <- CountMat(data2011C, 'BAL')
+transition.counts.nya.2011 <- CountMat(data2011C, 'NYA')
+number.of.distinct.transitions.2011 <- sum(transition.counts.all.2011 > 0)
+number.of.legal.transitions.never.occurred.2011 <- number.of.legal.transitions - number.of.distinct.transitions.2011
+```
+```{r simulate.half.innings,echo=F,include=F,cache=T}
+half.inning.sample.size <- 100000
+half.innings <- sim.baseball(half.inning.sample.size,ALL,seed=1)
+```
+```{r process.half.innings,echo=F,include=F,cache=T}
+unique.half.innings <- unique(half.innings)
+likes.unique.half.innings <- likes.baseball(unique.half.innings,ALL)
+sorted.index <- sort(likes.unique.half.innings,decreasing=TRUE,index.return=TRUE)$ix
+sorted.half.innings <- unique.half.innings[sorted.index]
+# empirical.sorted.half.innings <- sort(table(half.innings), decreasing=TRUE)
+percentages.sorted <- 100*exp(likes.unique.half.innings[sorted.index])
+names(percentages.sorted) <- sorted.half.innings
+percentages.trimmed <- percentages.sorted[percentages.sorted>=1]
+```
+```{r half.inning.summaries,echo=F,include=F,cache=T}
+most.common.half.inning <- sorted.half.innings[1]
+most.common.percentage <- round(100*exp(likes.unique.half.innings[sorted.index[1]]))
+second.common.half.inning <- sorted.half.innings[2]
+second.common.percentage <- round(100*exp(likes.unique.half.innings[sorted.index[2]]))
+number.of.nonrare.half.innings <- length(percentages.trimmed)
+float.probability.nonrare <- round(sum(percentages.trimmed))/100
+probability.nonrare <- format(float.probability.nonrare, nsmall=2)
+percentage.rare <- round(100*(1-float.probability.nonrare))
+names(percentage.rare) <- 'Rare'
+percentages.with.rare <- c(percentage.rare, percentages.trimmed)
+```
+```{r tdistributions,echo=F,include=F,cache=T}
+sample.from.t <- format(sim.t(1,df=5,seed=1))
+```
+```{r bootstraptable,echo=F,cache=T}
+samples.t5 <- sim.t(200000, df=5, seed=7)
+likes.t5.t5 <- likes.t(samples.t5, df=5)
+likes.t5.normal <- likes.t(samples.t5,df=Inf)
+bootstrap.table <- bootstrap.matrix(likes.t5.t5, likes.t5.normal, max.samples=5, bootstrap.rows=7, seed=5)
+bottom.right.for.testing <- format(bootstrap.table[7,5])
+proportion.correct <- prop.choose.hyp(likes.t5.t5, likes.t5.normal, max.samples=250, bootstrap.rows=1000, seed=5)
+x.range <- 1:250
+prop.50.for.testing <- format(proportion.correct[50])
+fifth.percentile <- quantile.columns(likes.t5.t5, likes.t5.normal, max.samples=250, bootstrap.rows=1000, seed=5)
+q5.50.for.testing <- format(fifth.percentile[50])
+roi <- region.of.interest(likes.t5.t5, likes.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+eq <- estimated.quantiles(likes.t5.t5, likes.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+needed <- samples.needed(likes.t5.t5, likes.t5.normal,
+                  max.samples=250, bootstrap.rows=1000, seed=5,
+                  confidence.level=0.95)
+``` 
+```{r repeatqr, echo=F, cache=T, message=F, warning=F, include=F}
+require(quantreg)
+qr.begin <- proc.time()
+qr.reps <- repeated.estimates(reps=100, seed=2, 
+                              quantile.regression=TRUE)
+qr.end <- proc.time()
+```
+```{r repeatslr, echo=F, cache=T, message=F, warning=F, include=F}
+require(quantreg)
+slr.begin <- proc.time()
+slr.reps <- repeated.estimates(reps=100, seed=2, 
+                              quantile.regression=FALSE)
+slr.end <- proc.time()
+```
+```{r repeatbb, echo=F, cache=T, message=F, warning=F, include=F}
+require(quantreg)
+bb.begin <- proc.time()
+bb.reps <- baseball.repeated.estimates(reps=6, seed=2,
+                               quantile.regression=FALSE)
+bb.end <- proc.time()
+```
+```{r printtimes, echo=F, eval=F}
+qr.end - qr.begin
+slr.end - slr.begin
+bb.end - bb.begin
+```
+```{r estimators, echo=F}
+qr.label <- rep('quantreg::rq()',length(qr.reps))
+sl.label <- rep('quantile(); lm()',length(slr.reps))
+label <- rbind(cbind(qr.label),cbind(sl.label))
+colnames(label) <- 'label'
+estimator <- rbind(cbind(qr.reps),cbind(slr.reps))
+colnames(estimator) <- 'estimator'
+df.estimators <- data.frame(estimator, label)
+```
+```{r getrangeofestimate, echo=F}
+# QUANTILES THEN SIMPLE LINEAR REGRESSION
+mean.slr <- round(mean(slr.reps))
+se.slr <- ceiling(sd(slr.reps)/sqrt(length(slr.reps)))
+number.of.outliers.slr <- sum(slr.reps < 100)
+outlier.cutoff <- 100
+slr.reps.na <- slr.reps
+slr.reps.na[slr.reps<outlier.cutoff] = NA
+mean.slr.na <- round(mean(slr.reps.na, na.rm=TRUE))
+se.slr.na <- ceiling(sd(slr.reps.na, na.rm=TRUE)/length(slr.reps.na[!is.na(slr.reps.na)]))
+# QUANTILE REGRESSION
+mean.qr <- round(mean(qr.reps))
+se.qr <- ceiling(sd(qr.reps)/sqrt(length(qr.reps)))
+# BASEBALL
+mean.bb <- round(mean(bb.reps))
+se.bb <- ceiling(sd(bb.reps)/sqrt(length(bb.reps)))
+```
+```{r numberneverfornya, echo=F, cache=T}
+half.innings.bal <- sim.baseball(half.inning.sample.size,BAL,seed=2)
+likes.bal.nya <- likes.baseball(half.innings.bal, NYA)
+```
+```{r statsfornevernya, echo=F}
+number.never.for.nya <- sum(is.infinite(likes.bal.nya))
+proportion.never.for.nya <- number.never.for.nya/half.inning.sample.size
+rounded.percent.never.for.nya <- round(100*proportion.never.for.nya)
+rounded.percent.at.least.one.inf <- round(100*pbinom(0, size=mean.bb, prob=proportion.never.for.nya, lower.tail=FALSE))
+pretty.sample.size <- formatC(half.inning.sample.size,format="f",digits=0,big.mark=',')
+```
+```{r tests,echo=F,include=F,cache=F}
+stopifnot(number.of.transient.states == 24)
+stopifnot(number.of.states == 25)
+stopifnot(number.of.conceivable.transitions == 600)
+stopifnot(number.of.legal.transitions == 296)
+stopifnot(number.of.illegal.transitions == 304)
+stopifnot(number.of.distinct.transitions.2011 == 272)
+stopifnot(number.of.legal.transitions.never.occurred.2011 == 24)
+stopifnot(transition.counts.all.2011['1X:','1X:'] == 0)
+stopifnot(transition.counts.all.2011['1:','1:'] >0)
+stopifnot(transition.counts.all.2011['1XX:','1XX:'] > 0)
+stopifnot(transition.counts.bal.2011['23X:','3X:'] == 1)
+stopifnot(transition.counts.nya.2011['23X:','3X:'] == 0)
+stopifnot(identical(most.common.half.inning,'0:0X:0XX:XXX'))
+stopifnot(most.common.percentage == 31)
+stopifnot(identical(second.common.half.inning,'0:0X:0XX:1XX:XXX'))
+stopifnot(second.common.percentage == 8)
+stopifnot(number.of.nonrare.half.innings == 9)
+stopifnot(identical(probability.nonrare,'0.56'))
+stopifnot(percentage.rare==44)
+stopifnot(identical(sample.from.t,"-0.6576941"))
+stopifnot(identical(bottom.right.for.testing,"-0.4206254"))
+stopifnot(identical(prop.50.for.testing,"0.819"))
+stopifnot(identical(q5.50.for.testing,"-1.606729"))
+stopifnot(identical(format(qr.reps[100]),"126.849"))
+stopifnot(identical(format(slr.reps[100]),"124.6922"))
+stopifnot(identical(format(bb.reps[6]),"29.79542"))
+stopifnot(mean.slr == 125)
+stopifnot(se.slr == 2)
+stopifnot(number.of.outliers.slr == 2)
+stopifnot(mean.slr.na == 126)
+stopifnot(se.slr.na == 1)
+stopifnot(mean.qr == 128)
+stopifnot(se.qr == 1)
+stopifnot(mean.bb == 30)
+stopifnot(se.bb == 1)
+stopifnot(rounded.percent.never.for.nya == 2)
+stopifnot(rounded.percent.at.least.one.inf == 45)
+stopifnot(identical(pretty.sample.size,"100,000"))
+```
+
+
+## The Baseball
+![](pcatalkimages/hittheball.gif)
+
+## Running The Bases
+![](pcatalkimages/runningbases.gif)
+
+
+## Getting Out
+![](pcatalkimages/doubleplay.gif)
+
+## State of the bases
+- 0 -- Bases empty
+- 1 -- Runner on first
+- 2 -- Runner on second
+- 3 -- Runner on third
+- 12 -- Runners on first and second
+- 13 -- Runners on first and thrid
+- 23 -- Runners of second and third
+- 123 -- Bases loaded
+
+## State of the outs
+- (Blank) -- No outs
+- X -- One out
+- XX -- Two outs
+- XXX -- Three outs; half inning over
+
+## Simulating Baseball Half-Innings
+The state of a baseball half-inning can be described by which bases have runners and how many outs there are.
+
+```{r bb, echo=TRUE}
+sim.baseball(5, BAL, seed=1)
+```
+
+## Word Cloud Transitions
+```{r wordcloudtransitions, message=F, echo=F, fig.cap='The 272 baseball state transitions that occurred throughout the 2011 Major League season.  Additionally, there were 24 possible transitions that never occurred that season (not shown).'}
+transitions <- TransitionNameVector()
+frequencies <- TransitionCountVector(data2011C)
+set.seed(2)
+require(wordcloud)
+wordcloud(transitions,frequencies,min.freq=1)
+```
+
+## Word Cloud Half-Innings
+```{r wordcloudhalfinnings, message=F, echo=F, fig.cap='Most common half-innings, predicted from 2011 Major League season data.  Those with predicted probabilities less than 0.01 are lumped together as "Rare".'}
+set.seed(3)
+require(wordcloud)
+wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
+```
+
