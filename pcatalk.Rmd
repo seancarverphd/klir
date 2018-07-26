@@ -184,7 +184,7 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 ```
 
 
-## The Baseball
+## The Game
 ![](pcatalkimages/hittheball.gif)
 
 ## Running The Bases
@@ -194,28 +194,45 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 ## Getting Out
 ![](pcatalkimages/doubleplay.gif)
 
-## State of the bases
+## 8 Possible States of the Bases 
 - 0 -- Bases empty
 - 1 -- Runner on first
 - 2 -- Runner on second
 - 3 -- Runner on third
 - 12 -- Runners on first and second
-- 13 -- Runners on first and thrid
-- 23 -- Runners of second and third
+- 13 -- Runners on first and third
+- 23 -- Runners on second and third
 - 123 -- Bases loaded
 
-## State of the outs
+## 4 Possible Out States 
 - (Blank) -- No outs
 - X -- One out
 - XX -- Two outs
 - XXX -- Three outs; half inning over
 
-## Simulating Baseball Half-Innings
-The state of a baseball half-inning can be described by which bases have runners and how many outs there are.
+## 25 Possible Game States 
+- 24 Transient States
+    - 0, 1, 2, 3, 12, 13, 23, 123
+    - 0X, 1X, 2X, 3X, 12X, 13X, 23X, 123X
+    - 0XX, 1XX, 2XX, 3XX, 12XX, 13XX, 23XX, 123XX
+- 1 Absorbing State
+    - XXX
 
+## Simulating Baseball Half-Innings
+Simulating 5 half-innings using probabilites from 2011 Baltimore Orioles Data.
+
+![](pcatalkimages/rolldice.gif)
 ```{r bb, echo=TRUE}
 sim.baseball(5, BAL, seed=1)
 ```
+
+## 5 Possible Transitions from the 0 State
+
+- 0:0X -- Out
+- 0:1 -- Single
+- 0:2 -- Double
+- 0:3 -- Triple
+- 0:0 -- Homerun
 
 ## Word Cloud Transitions
 ```{r wordcloudtransitions, message=F, echo=F, fig.cap='The 272 baseball state transitions that occurred throughout the 2011 Major League season.  Additionally, there were 24 possible transitions that never occurred that season (not shown).'}
