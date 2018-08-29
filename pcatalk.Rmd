@@ -1,5 +1,5 @@
 ---
-title: "Baseball Markov Chains"
+title: "Novelty in Baseball"
 author: "Sean G. Carver, Ph.D., Professorial Lecturer, American University"
 date: "September 11, 2018"
 output: ioslides_presentation
@@ -183,6 +183,13 @@ stopifnot(rounded.percent.at.least.one.inf == 45)
 stopifnot(identical(pretty.sample.size,"100,000"))
 ```
 
+## When Does Something New Happen in Baseball?
+
+![](pcatalkimages/field.jpeg)
+
+- However we define a "new" outcome...
+- We want a "new" outcome to be a rare event.
+- We want a "new" outcome to always be possible.
 
 ## The Game
 ![](pcatalkimages/hittheball.gif)
@@ -218,21 +225,32 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 - 1 Absorbing State
     - XXX
 
-## Simulating Baseball Half-Innings
-Simulating 5 half-innings using probabilites from 2011 Baltimore Orioles Data.
-
-![](pcatalkimages/rolldice.gif)
-```{r bb, echo=TRUE}
-sim.baseball(5, BAL, seed=1)
+## Word Cloud States
+```{r wordcloudstates, message=F, echo=F, fig.cap='The 25 states of baseball, arranged randomly, and sized according to frequency of appearance during 2011 Major League play.'}
+states <- StateNameVector()
+frequencies <- StateCountVector(data2011C)
+set.seed(3)
+require(wordcloud)
+wordcloud(states,frequencies,min.freq=100)
 ```
 
-## 5 Possible Transitions from the 0 State
+## 5 Possible Transitions from the Bases Empty, No Outs (0) State
 
 - 0:0X -- Out
 - 0:1 -- Single
 - 0:2 -- Double
 - 0:3 -- Triple
 - 0:0 -- Homerun
+
+## 24 Possible Transitions from Bases Loaded, No Outs (123) State
+
+- All final states are possible from 123, except 123XX
+
+## 600 Conceivable Transitions; Some of the 304 Impossible Ones
+
+- 123X:123
+- 0:123
+- 0:0XX
 
 ## Word Cloud Transitions
 ```{r wordcloudtransitions, message=F, echo=F, fig.cap='The 272 baseball state transitions that occurred throughout the 2011 Major League season.  Additionally, there were 24 possible transitions that never occurred that season (not shown).'}
@@ -243,10 +261,34 @@ require(wordcloud)
 wordcloud(transitions,frequencies,min.freq=1)
 ```
 
+## Simulating Baseball Half-Innings
+Simulating 5 half-innings using probabilites from 2011 Baltimore Orioles Data.
+
+![](pcatalkimages/rolldice.gif)
+```{r bb, echo=TRUE}
+sim.baseball(5, BAL, seed=1)
+```
+
+
 ## Word Cloud Half-Innings
-```{r wordcloudhalfinnings, message=F, echo=F, fig.cap='Most common half-innings, predicted from 2011 Major League season data.  Those with predicted probabilities less than 0.01 are lumped together as "Rare".'}
+```{r wordcloudhalfinnings, message=F, echo=F, fig.cap='Most common half-innings (31%, 8%, ...), predicted from 2011 Major League season data.  Half-innings with probabilities less than 1% are lumped together as "Rare" (44%).'}
 set.seed(3)
 require(wordcloud)
 wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
 ```
 
+## New Outcomes in Baseball
+
+- The sequence of transitions between states in a half-inning is an outcome that might be "new" in Baseball.
+- With no cap on the score, there are infinitely many possible half-innings.
+- Only finitely many will ever be played.
+- It will always be possible to play a new half-inning.
+- Presumbably, new half innings are rare.
+
+## Novelty Questions
+
+- Are there any possible transitions that have never occurred in Major League play?  If not, what are the least common transitions?
+- What is the shortest half-inning that has never been played in Major League history?
+- What never-played half-inning has the highest likelihood of occurring in the future?
+- What is the distribution of occurrences of new half-innings over seasons of major league play?
+- What is the least likely half-inning that has in fact been played in major league history?

@@ -106,6 +106,18 @@ FindCountMat <- function(AllTeamData, HomeTeam='ALL') {
   return(teamtransCount)
 }
 
+FindCountStates <- function(AllTeamData, HomeTeam='ALL') {
+  if (identical(HomeTeam,'ALL')) {
+    TeamPlays <- AllTeamData
+  } else {
+    TeamPlays <- AllTeamData[substr(AllTeamData$GAME_ID,1,3)==HomeTeam, ]
+  }
+  teamstateCount <- with(TeamPlays, table(STATE))
+  teamnewstateCount <- with(TeamPlays, table(NEW.STATE))  # for 3 outs
+  teamstateCount <- c(teamstateCount,teamnewstateCount['3']) # Append 3 outs count
+  return(teamstateCount)
+}
+
 FindTransMat <- function(AllTeamData, HomeTeam='ALL') {
   teamtransCount <- FindCountMat(AllTeamData, HomeTeam=HomeTeam)
   teamtransProp <- prop.table(teamtransCount, 1)

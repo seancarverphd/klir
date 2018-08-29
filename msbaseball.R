@@ -86,10 +86,20 @@ TransitionNameVector <- function() {
   return (c(TransitionNameMatrix()))
 }
 
+StateNameVector <- function() {
+  return (gsub(":","",colcodes()))
+}
+
 TransitionCountVector <- function(AllTeamData, hometeam='ALL') {
   CM <- CountMat(AllTeamData, hometeam)
   counts <- c(CM)
   names(counts) <- TransitionNameVector()
+  return(counts)
+}
+
+StateCountVector <- function(AllTeamData, hometeam='ALL') {
+  counts <- FindCountStates(AllTeamData, hometeam)
+  names(counts) <- gsub(":","",colcodes())
   return(counts)
 }
 
