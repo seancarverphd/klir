@@ -188,8 +188,16 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 ![](pcatalkimages/field.jpeg)
 
 - However we define a "new" outcome...
-- We want a "new" outcome to be a rare event.
-- We want a "new" outcome to always be possible.
+- We want a "new" outcome to be a <span style="color:blue">rare event</span>.
+- We want a "new" outcome to <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
+
+## Outline
+
+![](pcatalkimages/pair.jpeg)
+
+- <span style="color:blue">Define "new"</span> in baseball to be rare and always possible.
+- <span style="color:blue">Ask interesting questions</span> about the game.
+- <span style="color:blue">Sound a call to action</span>.
 
 ## The Game
 ![](pcatalkimages/hittheball.gif)
@@ -279,16 +287,29 @@ wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
 
 ## New Outcomes in Baseball
 
-- The sequence of transitions between states in a half-inning is an outcome that might be "new" in Baseball.
+- The <span style="color:blue">sequence of transitions</span> between states in a half-inning is an outcome that <span style="color:blue">might be "new"</span> in Baseball.
 - With no cap on the score, there are infinitely many possible half-innings.
 - Only finitely many will ever be played.
-- It will always be possible to play a new half-inning.
-- Presumbably, new half innings are rare.
+- Thus, <span style="color:blue">"new"</span> half innings will <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
+- Presumbably, a "new" half innings is a <span style="color:blue">rare event</span> in major league play.
 
-## Novelty Questions
+## Questions About Baseball History
 
 - Are there any possible transitions that have never occurred in Major League play?  If not, what are the least common transitions?
 - What is the shortest half-inning that has never been played in Major League history?
 - What never-played half-inning has the highest likelihood of occurring in the future?
-- What is the distribution of occurrences of new half-innings over seasons of major league play?
+- What is the distribution of occurrences of new half-innings over seasons of major league play?  Today, what is the probability of a "new" half-inning?
 - What is the least likely half-inning that has in fact been played in major league history?
+
+## Recap
+
+- I have <span style="color:blue">defined "new"</span> events in Baseball to be rare and always possible.
+- I have <span style="color:blue">asked questions</span> that I think Baseball fans would be curious to have answered.
+- Finally ...
+
+## Call to Action
+
+- Are you interested in answering these questions?
+- I'm looking for student collaborators.  
+- <span style="color:blue">Contact me</span>, if interested.
+- Requires: experience coding, and love of Baseball.
