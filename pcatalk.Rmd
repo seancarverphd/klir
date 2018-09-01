@@ -236,15 +236,6 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 - 1 Absorbing State
     - XXX
 
-## The Most Frequent States: 0 and XXX
-```{r wordcloudstates, message=F, echo=F, fig.cap='The 25 states of baseball, arranged randomly, and sized according to frequency of appearance during 2011 Major League play.'}
-states <- StateNameVector()
-frequencies <- StateCountVector(data2011C)
-set.seed(3)
-require(wordcloud)
-wordcloud(states,frequencies,min.freq=100)
-```
-
 ## 2 Most Frequent States
 
 ![The 25 states of baseball, arranged randomly, and sized according to frequency of appearance during 2011 Major League play.](StateWordCloud.png)
@@ -270,15 +261,7 @@ The 20 remaining conceivable transitions from the 0 state (e.g. 0:XXX) are not p
 - 0:0XX
 
 ## The 272 Transitions From 2011
-```{r wordcloudtransitions, message=F, echo=F, fig.cap='272 transitions sized by frequency of occurrence in the 2011 Major League Season.  Additionally, there were 24 legal transitions that never occurred that season (not shown).'}
-transitions <- TransitionNameVector()
-frequencies <- TransitionCountVector(data2011C)
-set.seed(2)
-require(wordcloud)
-wordcloud(transitions,frequencies,min.freq=1)
-```
 
-## The 272 Transitions From 2011
 ![272 transitions sized by frequency of occurrence in the 2011 Major League Season.  Additionally, there were 24 legal transitions that never occurred that season (not shown).](TransitionWordCloud.png)
 
 ## Transition Probabilities Allow Simulations, Calculations
@@ -287,18 +270,13 @@ wordcloud(transitions,frequencies,min.freq=1)
 sim.baseball(5, BAL, seed=1)
 ```
 
-
-## Only 9 half-innings are 1% frequent
-```{r wordcloudhalfinnings, message=F, echo=F, fig.cap='Most common half-innings (31%, 8%, ...), predicted from 2011 Major League season data.  Half-innings with probabilities less than 1% are lumped together as "Rare" (44%).'}
-set.seed(3)
-require(wordcloud)
-wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
-```
-
 ## <span style="color:red"> "New" </span> Half-innings are 2% frequent
 
 ![Relative frequencies after 1.8 Million simulated half-innings (9 shown are more than 1% frequent) assuming 2011 transition probabilities.](InningWordCloud.png)
 
+## How Rare Are "New" Half-Innings?
+
+![](percent35.png)
 
 ## When Does Something New Happen In Baseball?
 
@@ -306,11 +284,7 @@ wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
 - With no cap on the score, there are infinitely many possible half-innings.
 - Only finitely many will ever be played.
 - Thus, <span style="color:red">"new"</span> half innings will <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
-- A "new" half inning is a relatively <span style="color:blue">"rare" event</span> in major league play (see next slide).
-
-## How Rare Are "New" Half-Innings?
-
-![](percent35.png)
+- A "new" half inning is a relatively <span style="color:blue">"rare" event</span> in major league play.
 
 ## Questions About Baseball History
 
