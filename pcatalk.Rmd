@@ -198,7 +198,7 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 ![](pcatalkimages/pair.jpeg)
 
 - Review rules of the game.
-- <span style="color:blue">Define </span> a concept of <span style="color:blue">"new"</span> in baseball that will be rare and inexhaustible.
+- <span style="color:blue">Define </span> a concept of <span style="color:red">"new"</span> in baseball that will be rare and inexhaustible.
 - <span style="color:blue">Ask interesting questions</span> about the game.
 - <span style="color:blue">Sound a call to action</span>.
 
@@ -245,6 +245,10 @@ require(wordcloud)
 wordcloud(states,frequencies,min.freq=100)
 ```
 
+## 2 Most Frequent States
+
+![The 25 states of baseball, arranged randomly, and sized according to frequency of appearance during 2011 Major League play.](StateWordCloud.png)
+
 ## The 5 Possible "Transitions" from the 0 State (Bases Empty, No Outs)
 
 - 0:0X -- Out
@@ -253,11 +257,13 @@ wordcloud(states,frequencies,min.freq=100)
 - 0:3 -- Triple
 - 0:0 -- Homerun
 
+The 20 remaining conceivable transitions from the 0 state (e.g. 0:XXX) are not possible (in other words illegal based on the rules of the game).
+
 ## 24 Transitions Are Possible From the 123 State (Bases Loaded, No Outs)
 
 - All final states are possible from 123, except 123XX
 
-## Some of the 304 Impossible Transitions Out of 600 Conceivable
+## Some of the 304 Illegal Transitions Out of 600 Conceivable Ones
 
 - 123X:123
 - 0:123
@@ -272,9 +278,10 @@ require(wordcloud)
 wordcloud(transitions,frequencies,min.freq=1)
 ```
 
-## Transition Probabilities Allow Simulations, Calculations
-Simulating 5 half-innings using probabilites from 2011 Baltimore Orioles Data.
+## The 272 Transitions From 2011
+![272 transitions sized by frequency of occurrence in the 2011 Major League Season.  Additionally, there were 24 legal transitions that never occurred that season (not shown).](TransitionWordCloud.png)
 
+## Transition Probabilities Allow Simulations, Calculations
 ![](pcatalkimages/rolldice.gif)
 ```{r bb, echo=TRUE}
 sim.baseball(5, BAL, seed=1)
@@ -288,12 +295,17 @@ require(wordcloud)
 wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
 ```
 
+## <span style="color:red"> "New" </span> Half-innings are 2% frequent
+
+![Relative frequencies after 1.8 Million simulated half-innings (9 shown are more than 1% frequent) assuming 2011 transition probabilities.](InningWordCloud.png)
+
+
 ## When Does Something New Happen In Baseball?
 
 - The <span style="color:blue">sequence of transitions</span> between states in a half-inning is an outcome that <span style="color:blue">might be "new"</span> in Baseball.
 - With no cap on the score, there are infinitely many possible half-innings.
 - Only finitely many will ever be played.
-- Thus, <span style="color:blue">"new"</span> half innings will <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
+- Thus, <span style="color:red">"new"</span> half innings will <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
 - A "new" half inning is a relatively <span style="color:blue">"rare" event</span> in major league play (see next slide).
 
 ## How Rare Are "New" Half-Innings?
