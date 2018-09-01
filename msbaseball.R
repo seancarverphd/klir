@@ -139,7 +139,7 @@ sim.baseball <- function(n, transition.matrix, seed=FALSE) {
   if (!identical(seed, FALSE)) {
     set.seed(seed)
   }
-  half.innings <- c()
+  half.innings <- vector(mode="character",length=n)
   for (k in 1:n) {
     state <- "0:"
     one.half.inning <- state
@@ -149,7 +149,7 @@ sim.baseball <- function(n, transition.matrix, seed=FALSE) {
       one.half.inning <- paste(one.half.inning, new.state, sep="")
       state <- new.state
     }
-    half.innings <- c(half.innings, one.half.inning)
+    half.innings[k] <- one.half.inning
   }
   return (half.innings)
 }

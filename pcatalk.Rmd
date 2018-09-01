@@ -183,33 +183,36 @@ stopifnot(rounded.percent.at.least.one.inf == 45)
 stopifnot(identical(pretty.sample.size,"100,000"))
 ```
 
-## When Does Something New Happen in Baseball?
+## When Does Something "New" Happen in Baseball?
+
+- Never? Always?  Both justifiable answers.
 
 ![](pcatalkimages/field.jpeg)
 
-- However we define a "new" outcome...
-- We want a "new" outcome to be a <span style="color:blue">rare event</span>.
-- We want a "new" outcome to <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
+- What we consider "new" should be ...
+- ... a relatively <span style="color:blue">rare event</span>, and
+- ... inexhaustible, so that new will <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
 
-## Outline
+## Outline of Talk
 
 ![](pcatalkimages/pair.jpeg)
 
-- <span style="color:blue">Define "new"</span> in baseball to be rare and always possible.
+- Review rules of the game.
+- <span style="color:blue">Define </span> a concept of <span style="color:blue">"new"</span> in baseball that will be rare and inexhaustible.
 - <span style="color:blue">Ask interesting questions</span> about the game.
 - <span style="color:blue">Sound a call to action</span>.
 
-## The Game
+## Batting Starts the Play
 ![](pcatalkimages/hittheball.gif)
 
-## Running The Bases
+## The Batter Becomes A Runner Who Can Stop On 1 of 3 Bases
 ![](pcatalkimages/runningbases.gif)
 
 
-## Getting Out
+## Runners Want to Avoid Outs
 ![](pcatalkimages/doubleplay.gif)
 
-## 8 Possible States of the Bases 
+## There are 8 Possible Situations With the Bases 
 - 0 -- Bases empty
 - 1 -- Runner on first
 - 2 -- Runner on second
@@ -219,13 +222,13 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 - 23 -- Runners on second and third
 - 123 -- Bases loaded
 
-## 4 Possible Out States 
+## There are 4 Possible Situations with the Outs
 - (Blank) -- No outs
 - X -- One out
 - XX -- Two outs
 - XXX -- Three outs; half inning over
 
-## 25 Possible Game States 
+## There are 25 Possible Game "States" 
 - 24 Transient States
     - 0, 1, 2, 3, 12, 13, 23, 123
     - 0X, 1X, 2X, 3X, 12X, 13X, 23X, 123X
@@ -233,7 +236,7 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 - 1 Absorbing State
     - XXX
 
-## Word Cloud States
+## The Most Frequent States: 0 and XXX
 ```{r wordcloudstates, message=F, echo=F, fig.cap='The 25 states of baseball, arranged randomly, and sized according to frequency of appearance during 2011 Major League play.'}
 states <- StateNameVector()
 frequencies <- StateCountVector(data2011C)
@@ -242,7 +245,7 @@ require(wordcloud)
 wordcloud(states,frequencies,min.freq=100)
 ```
 
-## 5 Possible Transitions from the Bases Empty, No Outs (0) State
+## The 5 Possible "Transitions" from the 0 State (Bases Empty, No Outs)
 
 - 0:0X -- Out
 - 0:1 -- Single
@@ -250,18 +253,18 @@ wordcloud(states,frequencies,min.freq=100)
 - 0:3 -- Triple
 - 0:0 -- Homerun
 
-## 24 Possible Transitions from Bases Loaded, No Outs (123) State
+## 24 Transitions Are Possible From the 123 State (Bases Loaded, No Outs)
 
 - All final states are possible from 123, except 123XX
 
-## 600 Conceivable Transitions; Some of the 304 Impossible Ones
+## Some of the 304 Impossible Transitions Out of 600 Conceivable
 
 - 123X:123
 - 0:123
 - 0:0XX
 
-## Word Cloud Transitions
-```{r wordcloudtransitions, message=F, echo=F, fig.cap='The 272 baseball state transitions that occurred throughout the 2011 Major League season.  Additionally, there were 24 possible transitions that never occurred that season (not shown).'}
+## The 272 Transitions From 2011
+```{r wordcloudtransitions, message=F, echo=F, fig.cap='272 transitions sized by frequency of occurrence in the 2011 Major League Season.  Additionally, there were 24 legal transitions that never occurred that season (not shown).'}
 transitions <- TransitionNameVector()
 frequencies <- TransitionCountVector(data2011C)
 set.seed(2)
@@ -269,7 +272,7 @@ require(wordcloud)
 wordcloud(transitions,frequencies,min.freq=1)
 ```
 
-## Simulating Baseball Half-Innings
+## Transition Probabilities Allow Simulations, Calculations
 Simulating 5 half-innings using probabilites from 2011 Baltimore Orioles Data.
 
 ![](pcatalkimages/rolldice.gif)
@@ -278,20 +281,24 @@ sim.baseball(5, BAL, seed=1)
 ```
 
 
-## Word Cloud Half-Innings
+## Only 9 half-innings are 1% frequent
 ```{r wordcloudhalfinnings, message=F, echo=F, fig.cap='Most common half-innings (31%, 8%, ...), predicted from 2011 Major League season data.  Half-innings with probabilities less than 1% are lumped together as "Rare" (44%).'}
 set.seed(3)
 require(wordcloud)
 wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
 ```
 
-## New Outcomes in Baseball
+## When Does Something New Happen In Baseball?
 
 - The <span style="color:blue">sequence of transitions</span> between states in a half-inning is an outcome that <span style="color:blue">might be "new"</span> in Baseball.
 - With no cap on the score, there are infinitely many possible half-innings.
 - Only finitely many will ever be played.
 - Thus, <span style="color:blue">"new"</span> half innings will <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
-- Presumbably, a "new" half innings is a <span style="color:blue">rare event</span> in major league play.
+- A "new" half inning is a relatively <span style="color:blue">"rare" event</span> in major league play (see next slide).
+
+## How Rare Are "New" Half-Innings?
+
+![](percent35.png)
 
 ## Questions About Baseball History
 
@@ -301,15 +308,15 @@ wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
 - What is the distribution of occurrences of new half-innings over seasons of major league play?  Today, what is the probability of a "new" half-inning?
 - What is the least likely half-inning that has in fact been played in major league history?
 
-## Recap
+## Recap of Talk
 
-- I have <span style="color:blue">defined "new"</span> events in Baseball to be rare and always possible.
+- I have <span style="color:blue">defined "new"</span> events in Baseball to be relatively rare and always possible.
 - I have <span style="color:blue">asked questions</span> that I think Baseball fans would be curious to have answered.
 - Finally ...
 
 ## Call to Action
 
-- Are you interested in answering these questions?
+- Are you interested in answering these or similar questions?
 - I'm looking for student collaborators.  
 - <span style="color:blue">Contact me</span>, if interested.
 - Requires: experience coding, and love of Baseball.
