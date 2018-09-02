@@ -271,6 +271,10 @@ The remaining 296 transitions are possible.
 
 ![272 transitions sized by frequency of occurrence in the 2011 Major League Season.  Additionally, there were 24 legal transitions that never occurred that season (not shown).](TransitionWordCloud.png)
 
+## <span style="color:blue">0X</span> Is The Most Common Second State
+
+![](State0Transitions.png)
+
 ## Transition Probabilities Allow Simulations, Calculations
 ![](pcatalkimages/rolldice.gif)
 ```{r bb, echo=TRUE}
