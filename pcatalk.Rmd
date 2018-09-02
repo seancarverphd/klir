@@ -191,7 +191,7 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 
 - What we consider "new" should be ...
 - ... a relatively <span style="color:blue">rare event</span>, and
-- ... inexhaustible, so that new will <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
+- ... <span style="color:blue">inexhaustible</span>, so that new will always be possible.
 
 ## Outline of Talk
 
@@ -246,21 +246,27 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 - 0:1 -- Single
 - 0:2 -- Double
 - 0:3 -- Triple
-- 0:0 -- Homerun
+- 0:0 -- Home Run
 
-The 20 remaining conceivable transitions from the 0 state (e.g. 0:XXX) are not possible (in other words illegal based on the rules of the game).
+The 20 remaining final states cannot be reached from 0 in one play.  
+
+(E.g. 0:XXX is illegal, based on the rules of the game.)
 
 ## 24 Transitions Are Possible From the 123 State (Bases Loaded, No Outs)
 
-- All final states are possible from 123, except 123XX
+- All final states can be reached from 123, except 123XX
 
-## Some of the 304 Illegal Transitions Out of 600 Conceivable Ones
+## 304 of 600 Conceivable Transitions Are Impossible
+
+E.g.:
 
 - 123X:123
 - 0:123
 - 0:0XX
 
-## The 272 Transitions From 2011
+The remaining 296 transitions are possible.
+
+## 272 Transitions Occurred in 2011
 
 ![272 transitions sized by frequency of occurrence in the 2011 Major League Season.  Additionally, there were 24 legal transitions that never occurred that season (not shown).](TransitionWordCloud.png)
 
@@ -272,37 +278,40 @@ sim.baseball(5, BAL, seed=1)
 
 ## <span style="color:red"> "New" </span> Half-innings are 2% frequent
 
-![Relative frequencies after 1.8 Million simulated half-innings (9 shown are more than 1% frequent) assuming 2011 transition probabilities.](InningWordCloud.png)
+![](InningWordCloud.png)
+
+9 most frequent half innings sized by probability.  Also shown and sized by collective probability: "Rarely seen" (less that 1% frequent) and <span style="color:red">"Never</span> seen" ("New" after 3.8 M simulations).
+
 
 ## How Rare Are "New" Half-Innings?
 
 ![](percent35.png)
 
-## When Does Something New Happen In Baseball?
+## New half-innings are inexhaustible
 
-- The <span style="color:blue">sequence of transitions</span> between states in a half-inning is an outcome that <span style="color:blue">might be "new"</span> in Baseball.
-- With no cap on the score, there are infinitely many possible half-innings.
-- Only finitely many will ever be played.
-- Thus, <span style="color:red">"new"</span> half innings will <span style="color:blue">always</span> be <span style="color:blue">possible</span>.
-- A "new" half inning is a relatively <span style="color:blue">"rare" event</span> in major league play.
+![](pcatalkimages/blowout.jpg)
+
+- With no cap on score, there are infinitely-many half-innings possible.
+- "New" half-innings are getting rarer, but apparently slowly.
 
 ## Questions About Baseball History
 
-- Are there any possible transitions that have never occurred in Major League play?  If not, what are the least common transitions?
 - What is the shortest half-inning that has never been played in Major League history?
 - What never-played half-inning has the highest likelihood of occurring in the future?
-- What is the distribution of occurrences of new half-innings over seasons of major league play?  Today, what is the probability of a "new" half-inning?
 - What is the least likely half-inning that has in fact been played in major league history?
 
 ## Recap of Talk
 
-- I have <span style="color:blue">defined "new"</span> events in Baseball to be relatively rare and always possible.
-- I have <span style="color:blue">asked questions</span> that I think Baseball fans would be curious to have answered.
+I have:
+
+- Defined <span style="color:red"> "new"</span> in Baseball to be a new sequence of transitions between game states.
+- Shown these events in Baseball are relatively rare and always possible.
+- Asked questions that I think Baseball fans would be curious to have answered.
 - Finally ...
 
 ## Call to Action
 
-- Are you interested in answering these or similar questions?
+- If you interested in answering these or similar questions,...
 - I'm looking for student collaborators.  
 - <span style="color:blue">Contact me</span>, if interested.
 - Requires: experience coding, and love of Baseball.
