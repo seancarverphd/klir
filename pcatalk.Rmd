@@ -189,7 +189,8 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 
 ![](pcatalkimages/field.jpeg)
 
-- What we consider "new" should be ...
+"New" will only be interesting if it is ...
+
 - ... a relatively <span style="color:blue">rare event</span>, and
 - ... <span style="color:blue">inexhaustible</span>, so that new will always be possible.
 
@@ -256,7 +257,7 @@ The 20 remaining final states cannot be reached from 0 in one play.
 
 - All final states can be reached from 123, except 123XX
 
-## 304 of 600 Conceivable Transitions Are Impossible
+## 304 Transitions (Of 600 Conceivable) Are Impossible
 
 E.g.:
 
