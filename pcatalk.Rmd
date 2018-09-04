@@ -241,6 +241,16 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 
 ![The 25 states of baseball, arranged randomly, and sized according to frequency of appearance during 2011 Major League play.](StateWordCloud.png)
 
+```{r wordcloudstates, eval=F, message=F, echo=F, fig.cap='The 25 states of baseball, ar
+ranged randomly, and sized according to frequency of appearance during 2011 Major League play.'}
+states <- StateNameVector()
+frequencies <- StateCountVector(data2011C)
+set.seed(3)
+require(wordcloud)
+wordcloud(states,frequencies,min.freq=100)
+```
+
+
 ## The 5 Possible "Transitions" from the 0 State (Bases Empty, No Outs)
 
 - 0:0X -- Out
@@ -271,6 +281,14 @@ The remaining 296 transitions are possible.
 
 ![272 transitions sized by frequency of occurrence in the 2011 Major League Season.  Additionally, there were 24 legal transitions that never occurred that season (not shown).](TransitionWordCloud.png)
 
+```{r wordcloudtransitions, eval=F, message=F, echo=F, fig.cap='272 transitions sized by frequency of occurrence in the 2011 Major League Season.  Additionally, there were 24 legal transitions that never occurred that season (not shown).'}
+transitions <- TransitionNameVector()
+frequencies <- TransitionCountVector(data2011C)
+set.seed(2)
+require(wordcloud)
+wordcloud(transitions,frequencies,min.freq=1)
+```
+
 ## The Most Frequent Second State
 
 ![](State0Transitions.png)
@@ -284,6 +302,12 @@ sim.baseball(5, BAL, seed=1)
 ## <span style="color:red"> "New" </span> Half-innings are 2% frequent
 
 ![](InningWordCloud.png)
+
+```{r wordcloudhalfinnings, eval=F, message=F, echo=F, fig.cap='Most common half-innings (31%, 8%, ...), predicted from 2011 Major League season data.  Half-innings with probabilities less than 1% are lumped together as "Rare" (44%).'}
+set.seed(3)
+require(wordcloud)
+wordcloud(names(percentages.with.rare),percentages.with.rare,min.freq=1)
+```
 
 9 most frequent half innings sized by probability.  Also shown and sized by collective probability: "Rarely seen" (each < 1% frequent) and "Never seen" ("New" after 3.8 M simulations).
 
