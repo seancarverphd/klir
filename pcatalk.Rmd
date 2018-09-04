@@ -237,7 +237,7 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 - 1 Absorbing State
     - XXX
 
-## 2 Most Frequent States
+## The 2 Most Frequent States
 
 ![The 25 states of baseball, arranged randomly, and sized according to frequency of appearance during 2011 Major League play.](StateWordCloud.png)
 
@@ -271,7 +271,7 @@ The remaining 296 transitions are possible.
 
 ![272 transitions sized by frequency of occurrence in the 2011 Major League Season.  Additionally, there were 24 legal transitions that never occurred that season (not shown).](TransitionWordCloud.png)
 
-## <span style="color:blue">0X</span> Is The Most Common Second State
+## The Most Frequent Second State
 
 ![](State0Transitions.png)
 
@@ -285,7 +285,7 @@ sim.baseball(5, BAL, seed=1)
 
 ![](InningWordCloud.png)
 
-9 most frequent half innings sized by probability.  Also shown and sized by collective probability: "Rarely seen" (less that 1% frequent) and <span style="color:red">"Never</span> seen" ("New" after 3.8 M simulations).
+9 most frequent half innings sized by probability.  Also shown and sized by collective probability: "Rarely seen" (each < 1% frequent) and "Never seen" ("New" after 3.8 M simulations).
 
 
 ## How Rare Are "New" Half-Innings?
