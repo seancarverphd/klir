@@ -241,13 +241,25 @@ stopifnot(identical(pretty.sample.size,"100,000"))
 
 ![The 25 states of baseball, arranged randomly, and sized according to frequency of appearance during 2011 Major League play.](StateWordCloud.png)
 
-```{r wordcloudstates, eval=F, message=F, echo=F, fig.cap='The 25 states of baseball, ar
-ranged randomly, and sized according to frequency of appearance during 2011 Major League play.'}
+```{r wordcloudstates, eval=F, message=F, echo=F, fig.cap='The 25 states of baseball, arranged randomly, and sized according to frequency of appearance during 2011 Major League play.'}
 states <- StateNameVector()
 frequencies <- StateCountVector(data2011C)
 set.seed(3)
 require(wordcloud)
 wordcloud(states,frequencies,min.freq=100)
+```
+
+## Most and Least Frequent States
+
+```{r state}
+library(ggplot2)
+states <- StateNameVector()
+frequencies <- StateCountVector(data2011C)
+statedf <- data.frame(states,frequencies)
+ordered <- statedf[order(frequencies),]
+g <- ggplot(data=ordered,mapping=aes(x=reorder(states, frequencies),y=frequencies))
+gbase <- g + geom_bar(stat="identity") + coord_flip()
+gbase + xlab("State") + ylab("Frequency of occurence during 2011 MLB season") + theme(axis.text=element_text(size=14), axis.title=element_text(size=16,face="bold"))
 ```
 
 
