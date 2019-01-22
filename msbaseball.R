@@ -115,6 +115,12 @@ Cloud <- function(AllTeamData) {
   return(A)
 }
 
+Normalized.Cloud <- function(AllTeamData) {
+  C <- Cloud(AllTeamData)
+  meanC <- rowMeans(C)
+  return(C-meanC)
+}
+
 # Transition Matrices, specific teams 2011 MLB:
 WAS <- FindTransMat(data2011C,"WAS") # Washington Nationals, 2011.
 BAL <- FindTransMat(data2011C,"BAL") # Baltimore Orioles, 2011.
