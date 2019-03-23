@@ -7,4 +7,4 @@ KLI in R (Kullback-Leibler Interactive) --- Computes number of samples needed fo
 * _JSMtalk.Rmd_ -- Slides for JSM Talk 2017
 * _PCAtalk.Rmd_ -- Slikdes for talk given to undergraduates at American University (didn't end up talking about PCA)
 
-**Note to run the baseball code for the paper and talk, you need to download the data from https://github.com/maxtoki/baseball_R/**  Put files **fields.csv** and **all20011.csv** into a new directory in repository called **data/**.
+**Note to run the baseball code for the paper and talk, you need to download the data from https://github.com/maxtoki/baseball_R/**.  Put files **fields.csv** and **all20011.csv** into a new directory in repository called **data/**.
