@@ -86,5 +86,4 @@ Requires R with packages: `knitr`, `quantreg`, and dependencies listed in `JSMpa
 
 ## Data
 
-Baseball data required for the motivating application is sourced from [https://github.com/maxtoki/baseball_R/](https://github.com/maxtoki/baseball_R/).  
-Place `fields.csv` and `all20011.csv` in a `data/` directory before running.
+Baseball data required for the motivating application is sourced from [Retrosheet](https://www.retrosheet.org) play-by-play event files. Place `fields.csv` and `all20011.csv` in a `data/` directory before running.
