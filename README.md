@@ -22,7 +22,7 @@ The methodology was presented at the **Joint Statistical Meetings (JSM), August 
 Sean G. Carver, Ph.D.  
 *Joint Statistical Meetings Proceedings, 2017*
 
-- [Download PDF](CarverJSM2017.pdf)
+- **Paper:** [View PDF](https://github.com/seancarverphd/klir/blob/master/CarverJSM2017.pdf) | [Download PDF](https://github.com/seancarverphd/klir/raw/master/CarverJSM2017.pdf)
 - [Google Scholar entry](https://scholar.google.com/citations?view_op=view_citation&hl=en&user=khxzFsAAAAAJ&citation_for_view=khxzFsAAAAAJ:9yKSN-GCB0IC)
 
 ---
